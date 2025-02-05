@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -13,15 +14,17 @@ const Login = () => {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const router = useRouter();
+
   const handleSubmit = (data: typeof formData) => {
     try {
       setIsSubmitting(true);
       setErrors({});
 
-      // TODO: vaildate the form data
       // TODO: attempt sign in
-      // TODO: navigate to dashboard/home page
-      window.open("/");
+
+      // TODO: navigate to dashboard page?
+      router.push("/");
     } catch (error) {
       setErrors({ submit: "Failed to sign in. Please try again." });
     } finally {
