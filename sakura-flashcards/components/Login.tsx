@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const Login = () => {
@@ -22,6 +22,7 @@ const Login = () => {
       setErrors({});
 
       // TODO: attempt sign in
+      // signIn(data);
 
       // TODO: navigate to dashboard page?
       router.push("/");
@@ -49,33 +50,38 @@ const Login = () => {
           e.preventDefault();
           handleSubmit(formData);
         }}
+        className="flex flex-col items-center justify-center space-y-2"
       >
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            onChange={handleChange}
-            required
-            placeholder="Enter your email"
-          />
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email}</p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            id="password"
-            type="password"
-            onChange={handleChange}
-            required
-            placeholder="Enter your password"
-          />
-          {errors.password && (
-            <p className="text-sm text-red-500">{errors.password}</p>
-          )}
+        <div className="text-right space-y-2">
+          <div className="space-x-2">
+            <label htmlFor="email">Email:</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              onChange={handleChange}
+              required
+              placeholder="Enter your email"
+              className="text-black"
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email}</p>
+            )}
+          </div>
+          <div className="space-x-2">
+            <label htmlFor="password">Password:</label>
+            <input
+              id="password"
+              type="password"
+              onChange={handleChange}
+              required
+              placeholder="Enter your password"
+              className="text-black"
+            />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password}</p>
+            )}
+          </div>
         </div>
         {errors.submit && (
           <p className="text-center text-sm text-red-500">{errors.submit}</p>
@@ -83,6 +89,15 @@ const Login = () => {
         <Button variant="default" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Signing In..." : "Submit"}
         </Button>
+        <p className="text-center text-sm">
+          Don't have an account?{" "}
+          <Link
+            href="/sign-up"
+            className="gap-2 hover:opacity-60 custom-transition"
+          >
+            Create an account here.
+          </Link>
+        </p>
       </form>
     </div>
   );
