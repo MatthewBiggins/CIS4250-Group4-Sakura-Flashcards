@@ -12,32 +12,31 @@ const Login = () => {
     password?: string;
     submit?: string;
   }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = (data: typeof formData) => {
     try {
-      setIsSubmitting(true);
+      // TODO: Attempt sign in
+      setIsValidating(true);
       setErrors({});
-
-      // TODO: attempt sign in
       // signIn(data);
 
-      // TODO: navigate to dashboard page?
+      // Navigate to home page
       router.push("/");
     } catch (error) {
       setErrors({ submit: "Failed to sign in. Please try again." });
     } finally {
-      setIsSubmitting(false);
+      setIsValidating(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error message for input field
+    // Clear error message for input field on change
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -59,36 +58,43 @@ const Login = () => {
               id="email"
               name="email"
               type="email"
-              onChange={handleChange}
+              onChange={handleInput}
               required
               placeholder="Enter your email"
               className="text-black"
             />
+            {/* Display error message for email */}
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email}</p>
             )}
           </div>
+
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
             <input
               id="password"
               type="password"
-              onChange={handleChange}
+              onChange={handleInput}
               required
               placeholder="Enter your password"
               className="text-black"
             />
+            {/* Display error message for password */}
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password}</p>
             )}
           </div>
         </div>
+
+        {/* Display error message for completing login */}
         {errors.submit && (
           <p className="text-center text-sm text-red-500">{errors.submit}</p>
         )}
-        <Button variant="default" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Signing In..." : "Submit"}
+
+        <Button variant="default" type="submit" disabled={isValidating}>
+          {isValidating ? "Signing In..." : "Submit"}
         </Button>
+
         <p className="text-center text-sm">
           Don't have an account?{" "}
           <Link
