@@ -88,7 +88,6 @@ const Login = () => {
               className="text-black"
             />
           </div>
-
           {/* Display error message for email */}
           {errors.email && (
             <p className="text-sm text-red-500">{errors.email}</p>
@@ -114,7 +113,6 @@ const Login = () => {
               className="text-black"
             />
           </div>
-
           {/* Display error message for password */}
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password}</p>
