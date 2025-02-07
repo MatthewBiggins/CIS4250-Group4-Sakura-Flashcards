@@ -84,6 +84,22 @@ const CreateAccount = () => {
     }
   };
 
+  const handleInvalidInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const { name, value, validationMessage } = e.currentTarget;
+
+    if (value) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: `Invalid ${name} has been entered.`,
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: validationMessage,
+      }));
+    }
+  };
+
   return (
     <div>
       <form
@@ -101,15 +117,23 @@ const CreateAccount = () => {
               name="email"
               type="email"
               onChange={handleInput}
+              onInvalidCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
+              onErrorCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
               required
               placeholder="Enter your email"
               className="text-black"
             />
-            {/* Display error message for email */}
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email}</p>
-            )}
           </div>
+          {/* Display error message for email */}
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
 
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
@@ -118,15 +142,23 @@ const CreateAccount = () => {
               name="password"
               type="password"
               onChange={handleInput}
+              onInvalidCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
+              onErrorCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
               required
               placeholder="Enter your password"
               className="text-black"
             />
-            {/* Display error message for password */}
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password}</p>
-            )}
           </div>
+          {/* Display error message for password */}
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
 
           <div className="space-x-2">
             <label htmlFor="password2">Confirm Password:</label>
@@ -135,15 +167,23 @@ const CreateAccount = () => {
               name="confirm"
               type="password"
               onChange={handleInput}
+              onInvalidCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
+              onErrorCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
               required
               placeholder="Confirm your password"
               className="text-black"
             />
-            {/* Display error message for password */}
-            {errors.confirm && (
-              <p className="text-sm text-red-500">{errors.confirm}</p>
-            )}
           </div>
+          {/* Display error message for password */}
+          {errors.confirm && (
+            <p className="text-sm text-red-500">{errors.confirm}</p>
+          )}
         </div>
 
         {/* Display error message for completing login */}
