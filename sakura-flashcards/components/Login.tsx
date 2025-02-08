@@ -19,15 +19,16 @@ async function hash(string: string) {
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-    submit: "",
-  });
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    submit?: string;
+  }>({});
+
   const [isValidating, setIsValidating] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (data: typeof formData) => {
     try {
       setIsValidating(true);
       setErrors({});

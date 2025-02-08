@@ -1,6 +1,6 @@
 {
   "dependencies": {
     "@react-firebase/auth": "^0.2.10",
-    "firebase": "^11.3.0",
+    "firebase": "^11.3.0"
   }
 }
