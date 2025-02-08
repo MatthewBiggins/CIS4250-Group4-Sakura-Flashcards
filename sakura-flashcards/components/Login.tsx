@@ -4,58 +4,65 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import db from "../configuration"; 
+
+async function hash(string: string) {
+  const utf8 = new TextEncoder().encode(string);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", utf8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((bytes) => bytes.toString(16).padStart(2, "0"))
+    .join("");
+  return hashHex;
+}
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-    submit?: string;
-  }>({});
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    submit: "",
+  });
   const [isValidating, setIsValidating] = useState(false);
-
   const router = useRouter();
 
-  const handleSubmit = (data: typeof formData) => {
+  const handleSubmit = async (data) => {
     try {
-      // TODO: Attempt sign in
       setIsValidating(true);
       setErrors({});
-      // signIn(data);
+
+      const usersRef = collection(db, "users");
+      const emailQuery = query(usersRef, where("email", "==", data.email));
+      const querySnapshot = await getDocs(emailQuery);
+
+      if (querySnapshot.empty) {
+        throw new Error("User not found");
+      }
+
+      const userDoc = querySnapshot.docs[0].data();
+      const hashedPassword = await hash(data.password);
+
+      console.log("Entered hashed password:", hashedPassword); // DEBUGGING LINE
+
+
+      if (hashedPassword !== userDoc.password) {
+        throw new Error("Incorrect password");
+      }
 
       // Navigate to home page
       router.push("/");
     } catch (error) {
-      setErrors({ submit: "Failed to sign in. Please try again." });
+      setErrors({ submit: error.message });
     } finally {
       setIsValidating(false);
     }
   };
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInput = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error message for input field on change
-    if (errors[name as keyof typeof errors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const handleInvalidInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const { name, value, validationMessage } = e.currentTarget;
-
-    if (value) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: `Invalid ${name} has been entered.`,
-      }));
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: validationMessage,
-      }));
-    }
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   return (
@@ -75,23 +82,12 @@ const Login = () => {
               name="email"
               type="email"
               onChange={handleInput}
-              onInvalidCapture={(e) => {
-                e.preventDefault();
-                handleInvalidInput(e);
-              }}
-              onErrorCapture={(e) => {
-                e.preventDefault();
-                handleInvalidInput(e);
-              }}
               required
               placeholder="Enter your email"
               className="text-black"
             />
           </div>
-          {/* Display error message for email */}
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email}</p>
-          )}
+          {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
 
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
@@ -100,29 +96,15 @@ const Login = () => {
               name="password"
               type="password"
               onChange={handleInput}
-              onInvalidCapture={(e) => {
-                e.preventDefault();
-                handleInvalidInput(e);
-              }}
-              onErrorCapture={(e) => {
-                e.preventDefault();
-                handleInvalidInput(e);
-              }}
               required
               placeholder="Enter your password"
               className="text-black"
             />
           </div>
-          {/* Display error message for password */}
-          {errors.password && (
-            <p className="text-sm text-red-500">{errors.password}</p>
-          )}
+          {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
         </div>
 
-        {/* Display error message for completing login */}
-        {errors.submit && (
-          <p className="text-center text-sm text-red-500">{errors.submit}</p>
-        )}
+        {errors.submit && <p className="text-center text-sm text-red-500">{errors.submit}</p>}
 
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
@@ -130,10 +112,7 @@ const Login = () => {
 
         <p className="text-center text-sm">
           Don't have an account?{" "}
-          <Link
-            href="/sign-up"
-            className="gap-2 hover:opacity-60 custom-transition"
-          >
+          <Link href="/sign-up" className="gap-2 hover:opacity-60 custom-transition">
             Create an account here.
           </Link>
         </p>
