@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
     confirm: "",
   });
   const [errors, setErrors] = useState<{
+    username?: string;
     email?: string;
     password?: string;
     confirm?: string;
@@ -41,6 +43,12 @@ const CreateAccount = () => {
       } else if (error instanceof Error) {
         if (error.cause) {
           switch (error.cause) {
+            case "username":
+              setErrors((prev) => ({
+                ...prev,
+                username: error.message,
+              }));
+              break;
             case "email":
               setErrors((prev) => ({
                 ...prev,
@@ -110,6 +118,31 @@ const CreateAccount = () => {
         className="flex flex-col items-center justify-center space-y-2"
       >
         <div className="text-right space-y-2">
+          <div className="space-x-2">
+            <label htmlFor="username">Username:</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              onChange={handleInput}
+              onInvalidCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
+              onErrorCapture={(e) => {
+                e.preventDefault();
+                handleInvalidInput(e);
+              }}
+              required
+              placeholder="Enter your username"
+              className="text-black"
+            />
+          </div>
+          {/* Display error message for username */}
+          {errors.username && (
+            <p className="text-sm text-red-500">{errors.username}</p>
+          )}
+
           <div className="space-x-2">
             <label htmlFor="email">Email:</label>
             <input
