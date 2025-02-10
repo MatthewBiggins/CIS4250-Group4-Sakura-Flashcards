@@ -53,6 +53,7 @@ const CreateAccount = () => {
 
       await addDoc(collection(db, "users"), {
         email: data.email,
+        username: data.username,
         password: hashedPassword,
         createdAt: serverTimestamp(),
       });
