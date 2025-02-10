@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import UserData from "@/components/UserData"
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -21,7 +24,7 @@ const Login = () => {
       // TODO: Attempt sign in
       setIsValidating(true);
       setErrors({});
-      // signIn(data);
+      UserData.login(data.email, bcrypt.hashSync(data.password, saltRounds))
 
       // Navigate to home page
       router.push("/");
