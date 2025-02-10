@@ -39,17 +39,21 @@ const CreateAccount = () => {
 
       // Check Firestore to check if email is already in use
       const usersRef = collection(db, "users");
+      const usernameQuery = query(usersRef, where("username", "==", data.username));
       const emailQuery = query(usersRef, where("email", "==", data.email));
-      const querySnapshot = await getDocs(emailQuery);
+      const usernameSnapshot = await getDocs(usernameQuery);
+      const emailSnapshot = await getDocs(emailQuery);
+      
+      if (!usernameSnapshot.empty) {
+        throw new Error("Username already in use", { cause: "username" });
+      }
 
-      if (!querySnapshot.empty) {
+      if (!emailSnapshot.empty) {
         throw new Error("Email already in use", { cause: "email" });
       }
 
       // Hash the password before storing it
       const hashedPassword = await hash(data.password);
-
-      
 
       await addDoc(collection(db, "users"), {
         email: data.email,
@@ -59,6 +63,7 @@ const CreateAccount = () => {
       });
       
       console.log("Account created successfully!");
+      console.log("Username:", data.username);
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
 
