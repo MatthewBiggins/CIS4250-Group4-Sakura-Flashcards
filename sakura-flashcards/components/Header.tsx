@@ -8,10 +8,12 @@ import { AnimatePresence } from 'framer-motion';
 
 import MobileSidebar from '@/components/MobileSidebar';
 import { navLinks } from '@/constants';
+import UserData from '@/components/UserData';
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const toggleSidebar = () => setOpen((prev) => !prev);
+  const loggedIn = UserData.getEmail() != "Guest"
 
   return (
     <>
@@ -34,7 +36,7 @@ const Header = () => {
               width={130}
             />
           </Link>
-          <ul className="hidden md:flex justify-between items-center space-x-8 uppercase font-bold text-sm tracking-[2px]">
+          <ul className="hidden md:flex w-full justify-between items-center space-x-8 uppercase font-bold text-sm tracking-[2px]">
             {navLinks.map((link) => (
               <li
                 key={link.key}
@@ -48,6 +50,28 @@ const Header = () => {
                 </Link>
               </li>
             ))}
+            <div className="flex flex-grow"></div>
+            <li
+              className="hover:opacity-60 custom-transition object-left-top"
+            >
+                <Link
+                   href={loggedIn ? "/logout" : "/login"}
+                  className="p-2"
+                >
+                  <span className="relative">{loggedIn ? "Logout" : "Login"}</span>
+                </Link>
+            </li>
+            <li
+              className="hover:opacity-60 custom-transition object-left-top"
+            >
+                <Link
+                  href="/sign-up"
+                  className="p-2"
+                >
+                  <span className="relative">Create Account</span>
+                </Link>
+            </li>
+
           </ul>
           <div className="flex items-center space-x-2 text-xl">
             <button
