@@ -1,14 +1,8 @@
 import Link from 'next/link';
 import { StudySets } from '@/constants';
-import UserData from '@/components/UserData';
 const bcrypt = require('bcrypt');
 
 export default function Home() {
-  // Test User 
-    var hash = bcrypt.hashSync("password", 10);
-    UserData.createUser("email@mail.com", hash);
-    
-  // End Test User
   return (
     <div className="container max-md:px-4 flex flex-col justify-between items-center">
       <div className="relative overflow-hidden w-full rounded-lg bg-black border border-violet-900 p-4 lg:p-6">

@@ -2,18 +2,35 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/router';
 
 import MobileSidebar from '@/components/MobileSidebar';
 import { navLinks } from '@/constants';
 import UserData from '@/components/UserData';
 
 const Header = () => {
+  
   const [open, setOpen] = useState(false);
+  const [forceRender, setForceRender] = useState(false);
   const toggleSidebar = () => setOpen((prev) => !prev);
   const loggedIn = UserData.getEmail() != "Guest"
+  console.log(UserData.getEmail());
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setForceRender((prev) => !prev);
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
     <>
