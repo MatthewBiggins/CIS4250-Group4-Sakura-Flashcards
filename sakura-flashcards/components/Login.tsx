@@ -43,6 +43,7 @@ const Login = () => {
 
       // Compare the hashed input password with the stored hashed password
       if (hashedPassword !== userDoc.password) {
+        console.log("Incorrect password")
         throw new Error("Incorrect password");
       } else {
         try {
@@ -50,7 +51,7 @@ const Login = () => {
         } catch (ReferenceError){
           UserData.createUser(data.email,hashedPassword);
         }
-        UserData.login(data.email,hashedPassword)
+        console.log("login success?", UserData.login(data.email,hashedPassword))
       }
 
       // Navigate to home page
