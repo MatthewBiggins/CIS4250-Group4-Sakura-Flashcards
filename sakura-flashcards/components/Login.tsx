@@ -5,19 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import db from "../configuration"; 
-
-async function hash(string: string) {
-  const utf8 = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", utf8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, "0"))
-    .join("");
-  return hashHex;
-}
+import db from "@/firebase/configuration"; 
+import { hash } from "@/utils/hash"; 
 
 const Login = () => {
+  // State to store form data and validation errors
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{
     email?: string;
@@ -32,7 +24,8 @@ const Login = () => {
     try {
       setIsValidating(true);
       setErrors({});
-
+      
+      // Check Firestore for the entered email
       const usersRef = collection(db, "users");
       const emailQuery = query(usersRef, where("email", "==", data.email));
       const querySnapshot = await getDocs(emailQuery);
@@ -41,12 +34,13 @@ const Login = () => {
         throw new Error("User not found");
       }
 
+      // Retrieve user data from Firestore
       const userDoc = querySnapshot.docs[0].data();
       const hashedPassword = await hash(data.password);
 
-      console.log("Entered hashed password:", hashedPassword); // DEBUGGING LINE
+      console.log("Entered hashed password:", hashedPassword);
 
-
+      // Compare the hashed input password with the stored hashed password
       if (hashedPassword !== userDoc.password) {
         throw new Error("Incorrect password");
       }
@@ -54,13 +48,13 @@ const Login = () => {
       // Navigate to home page
       router.push("/");
     } catch (error) {
-      setErrors({ submit: error.message });
+      setErrors({ submit: (error as Error).message });
     } finally {
       setIsValidating(false);
     }
   };
 
-  const handleInput = (e) => {
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));

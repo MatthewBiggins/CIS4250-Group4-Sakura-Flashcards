@@ -5,17 +5,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { collection, serverTimestamp, addDoc, query, where, getDocs } from "firebase/firestore";
-import db from "../configuration"; 
-
-async function hash(string: string) {
-  const utf8 = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, '0'))
-    .join('');
-  return hashHex;
-}
+import db from "../firebase/configuration"; 
+import { hash } from "@/utils/hash"; 
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -39,11 +30,12 @@ const CreateAccount = () => {
       setIsValidating(true);
       setErrors({});
 
+      // Check if passwords match
       if (data.password != data.confirm) {
         throw new Error("Password does not match", { cause: "confirm" });
       }
 
-      // TODO: createAccount(data);
+      // Check Firestore to check if email is already in use
       const usersRef = collection(db, "users");
       const emailQuery = query(usersRef, where("email", "==", data.email));
       const querySnapshot = await getDocs(emailQuery);
@@ -52,16 +44,25 @@ const CreateAccount = () => {
         throw new Error("Email already in use", { cause: "email" });
       }
 
-      // Create new user document
+      // Hash the password before storing it
       const hashedPassword = await hash(data.password);
+
+      
+
       await addDoc(collection(db, "users"), {
         email: data.email,
         password: hashedPassword,
         createdAt: serverTimestamp(),
       });
+      
+      console.log("Account created successfully!");
+      console.log("Email:", data.email);
+      console.log("Password:", hashedPassword);
 
       // Navigate to home page
       router.push("/");
+    
+      // Handle errors with appropriate error messages
     } catch (error) {
       if (typeof error === "string") {
         setErrors({ submit: error });
@@ -100,7 +101,7 @@ const CreateAccount = () => {
       setIsValidating(false);
     }
   };
-
+  
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
