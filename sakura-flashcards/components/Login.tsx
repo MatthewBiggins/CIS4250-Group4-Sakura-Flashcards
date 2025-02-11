@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import db from "@/firebase/configuration"; 
-import { hash } from "@/utils/hash"; 
+import db from "@/firebase/configuration";
+import { hash } from "@/utils/hash";
+import UserContext from "@/components/UserContext";
 
 const Login = () => {
   // State to store form data and validation errors
@@ -19,12 +20,13 @@ const Login = () => {
 
   const [isValidating, setIsValidating] = useState(false);
   const router = useRouter();
+  const auth = useContext(UserContext);
 
   const handleSubmit = async (data: typeof formData) => {
     try {
       setIsValidating(true);
       setErrors({});
-      
+
       // Check Firestore for the entered email
       const usersRef = collection(db, "users");
       const emailQuery = query(usersRef, where("email", "==", data.email));
@@ -44,6 +46,9 @@ const Login = () => {
       if (hashedPassword !== userDoc.password) {
         throw new Error("Incorrect password");
       }
+
+      // TODO: Set the username state
+      auth.setUser(data.email);
 
       // Navigate to home page
       router.push("/");
@@ -82,7 +87,9 @@ const Login = () => {
               className="text-black"
             />
           </div>
-          {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
 
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
@@ -96,10 +103,14 @@ const Login = () => {
               className="text-black"
             />
           </div>
-          {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
         </div>
 
-        {errors.submit && <p className="text-center text-sm text-red-500">{errors.submit}</p>}
+        {errors.submit && (
+          <p className="text-center text-sm text-red-500">{errors.submit}</p>
+        )}
 
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
@@ -107,7 +118,10 @@ const Login = () => {
 
         <p className="text-center text-sm">
           Don't have an account?{" "}
-          <Link href="/sign-up" className="gap-2 hover:opacity-60 custom-transition">
+          <Link
+            href="/sign-up"
+            className="gap-2 hover:opacity-60 custom-transition"
+          >
             Create an account here.
           </Link>
         </p>
