@@ -48,7 +48,7 @@ const Login = () => {
       }
 
       // TODO: Set the username state
-      auth.setUser(data.email);
+      auth.setUser(userDoc.username);
 
       // Navigate to home page
       router.push("/");
