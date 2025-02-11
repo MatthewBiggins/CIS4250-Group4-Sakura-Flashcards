@@ -1,12 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { collection, serverTimestamp, addDoc, query, where, getDocs } from "firebase/firestore";
-import db from "../firebase/configuration"; 
-import { hash } from "@/utils/hash"; 
+import {
+  collection,
+  serverTimestamp,
+  addDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import db from "../firebase/configuration";
+import { hash } from "@/utils/hash";
+import UserContext from "@/components/UserContext";
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +33,7 @@ const CreateAccount = () => {
   const [isValidating, setIsValidating] = useState(false);
 
   const router = useRouter();
+  const auth = useContext(UserContext);
 
   const handleSubmit = async (data: typeof formData) => {
     try {
@@ -39,11 +48,14 @@ const CreateAccount = () => {
 
       // Check Firestore to check if email is already in use
       const usersRef = collection(db, "users");
-      const usernameQuery = query(usersRef, where("username", "==", data.username));
+      const usernameQuery = query(
+        usersRef,
+        where("username", "==", data.username)
+      );
       const emailQuery = query(usersRef, where("email", "==", data.email));
       const usernameSnapshot = await getDocs(usernameQuery);
       const emailSnapshot = await getDocs(emailQuery);
-      
+
       if (!usernameSnapshot.empty) {
         throw new Error("Username already in use", { cause: "username" });
       }
@@ -61,15 +73,18 @@ const CreateAccount = () => {
         password: hashedPassword,
         createdAt: serverTimestamp(),
       });
-      
+
       console.log("Account created successfully!");
       console.log("Username:", data.username);
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
 
+      // Log in the new user
+      auth.setUser(data.username);
+
       // Navigate to home page
       router.push("/");
-    
+
       // Handle errors with appropriate error messages
     } catch (error) {
       if (typeof error === "string") {
@@ -115,7 +130,7 @@ const CreateAccount = () => {
       setIsValidating(false);
     }
   };
-  
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
