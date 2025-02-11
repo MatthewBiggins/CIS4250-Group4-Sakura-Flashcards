@@ -1,21 +1,24 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { Menu } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import Image from "next/image";
+import Link from "next/link";
+import { useContext, useState } from "react";
+import { Menu } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 
-import MobileSidebar from '@/components/MobileSidebar';
-import { navLinks } from '@/constants';
-import firebase from 'firebase/compat/app';
-import { Button } from './ui/button';
+import MobileSidebar from "@/components/MobileSidebar";
+import { navLinks } from "@/constants";
+import UserContext from "@/components/UserContext";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const toggleSidebar = () => setOpen((prev) => !prev);
-  var signed_in = false; // Placeholder for state. Set to true to test logout link!
-  
+  const auth = useContext(UserContext);
+
+  const handleLogOut = () => {
+    auth.setUser("");
+  };
+
   return (
     <>
       <header className="sticky top-0 p-4 max-sm:py-2 z-40 bg-zinc-900/60 backdrop-blur border-b border-gray-300/20">
@@ -39,12 +42,13 @@ const Header = () => {
           </Link>
           <ul className="hidden md:flex w-full justify-between items-center space-x-8 uppercase font-bold text-sm tracking-[2px]">
             {navLinks.map((link) => (
-              <li
-                key={link.key}
-                className="hover:opacity-60 custom-transition"
-              >
+              <li key={link.key} className="hover:opacity-60 custom-transition">
                 <Link
-                  href={link.studySetId ? `${link.href}/${link.studySetId}` : link.href}
+                  href={
+                    link.studySetId
+                      ? `${link.href}/${link.studySetId}`
+                      : link.href
+                  }
                   className="p-2"
                 >
                   <span className="relative">{link.text}</span>
@@ -52,43 +56,28 @@ const Header = () => {
               </li>
             ))}
             <div className="flex flex-grow"></div>
-            {!signed_in &&
-              <li
-                className="hover:opacity-60 custom-transition object-left-top"
-              >
-                  <Link
-                    href="/login"
-                    className="p-2"
-                  >
+            {auth.userName ? (
+              // If a user is logged in
+              <li className="hover:opacity-60 custom-transition object-left-top">
+                <Link className="link p-2" href="/" onClick={handleLogOut}>
+                  <span className="relative">Log Out</span>
+                </Link>
+              </li>
+            ) : (
+              // else if a user is not logged in
+              <>
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link href="/login" className="p-2">
                     <span className="relative">Login</span>
                   </Link>
-              </li>
-            }
-            {!signed_in &&
-              <li
-                className="hover:opacity-60 custom-transition object-left-top"
-              >
-                  <Link
-                    href="/sign-up"
-                    className="p-2"
-                  >
+                </li>
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link href="/sign-up" className="p-2">
                     <span className="relative">Create Account</span>
                   </Link>
-              </li>
-            }
-            {signed_in &&
-              <li
-                className="hover:opacity-60 custom-transition object-left-top"
-              >
-                  <Link
-                    className="link p-2"
-                    href="/"
-                    onClick={(e:any) => {alert("TODO: Intergrate with signin state once it exists.")}}
-                  >
-                    <span className="relative">Log Out</span>
-                  </Link>
-              </li>
-            }
+                </li>
+              </>
+            )}
           </ul>
           <div className="flex items-center space-x-2 text-xl">
             <button
@@ -103,10 +92,7 @@ const Header = () => {
         </nav>
       </header>
 
-      <AnimatePresence
-        mode="wait"
-        initial={false}
-      >
+      <AnimatePresence mode="wait" initial={false}>
         {open && <MobileSidebar toggleSidebar={toggleSidebar} />}
       </AnimatePresence>
     </>
