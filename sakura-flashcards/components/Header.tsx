@@ -9,11 +9,13 @@ import { AnimatePresence } from 'framer-motion';
 import MobileSidebar from '@/components/MobileSidebar';
 import { navLinks } from '@/constants';
 import firebase from 'firebase/compat/app';
+import { Button } from './ui/button';
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const toggleSidebar = () => setOpen((prev) => !prev);
-
+  var signed_in = false; // Placeholder for state. Set to true to test logout link!
+  
   return (
     <>
       <header className="sticky top-0 p-4 max-sm:py-2 z-40 bg-zinc-900/60 backdrop-blur border-b border-gray-300/20">
@@ -50,7 +52,7 @@ const Header = () => {
               </li>
             ))}
             <div className="flex flex-grow"></div>
-            {!firebase.auth().currentUser &&
+            {!signed_in &&
               <li
                 className="hover:opacity-60 custom-transition object-left-top"
               >
@@ -62,7 +64,7 @@ const Header = () => {
                   </Link>
               </li>
             }
-            {!firebase.auth().currentUser &&
+            {!signed_in &&
               <li
                 className="hover:opacity-60 custom-transition object-left-top"
               >
@@ -74,15 +76,16 @@ const Header = () => {
                   </Link>
               </li>
             }
-            {firebase.auth().currentUser &&
+            {signed_in &&
               <li
                 className="hover:opacity-60 custom-transition object-left-top"
               >
                   <Link
-                    href="/sign-up"
-                    className="p-2"
+                    className="link p-2"
+                    href="/"
+                    onClick={(e:any) => {alert("TODO: Intergrate with signin state once it exists.")}}
                   >
-                    <span className="relative" onClick={(e:any) => firebase.auth().signOut()}>Log Out</span>
+                    <span className="relative">Log Out</span>
                   </Link>
               </li>
             }
