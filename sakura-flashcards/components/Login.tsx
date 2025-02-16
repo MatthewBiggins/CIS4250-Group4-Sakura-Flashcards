@@ -47,7 +47,6 @@ const Login = () => {
         throw new Error("Incorrect password");
       }
 
-      // TODO: Set the username state
       auth.setUser(userDoc.username);
 
       // Navigate to home page
