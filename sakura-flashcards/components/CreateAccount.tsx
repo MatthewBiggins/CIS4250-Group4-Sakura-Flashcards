@@ -16,31 +16,41 @@ import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
 import internal from "stream";
+import { genkiData } from '@/data';
 
-//TODO: replace j < 3 and k < 100 with values from dataset
 const initCardStatus = () => {
   type unit = Map<number, boolean>;
 
   type lesson = Array<unit>;
 
-  let lessons: lesson[] = new Array(23).fill(null).map(() => []);
+  type set = Array<lesson>;
 
-  for (let i = 0; i < 24; i++) {
-    let currentLesson: lesson = [];
+  let sets: set[] = [];
+  
+  for (let studySet of genkiData) {
+    let currentSet: set = [];
+    for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
+      let currentLesson: lesson = [];
 
-    for (let j = 0; j < 3; j++) {
-      let currentUnit: unit = new Map();
-      for (let k = 0; k < 100; k++) {
-        currentUnit.set(k, false);
+      let units = studySet.data[lessonIndex].units;
+      let numUnits = units.length;
+      for (let unitIndex = 0; unitIndex < numUnits; unitIndex++) {
+        let currentUnit: unit = new Map();
+        
+        let numCards = units[unitIndex].items.length;
+        for (let cardIndex = 0; cardIndex < numCards; cardIndex++) {
+          currentUnit.set(cardIndex, false);
+        }
+        currentLesson.push(currentUnit);
       }
-      currentLesson.push(currentUnit);
+    
+      currentSet.push(currentLesson);
     }
 
-    lessons[i] = currentLesson;
+    sets.push(currentSet);
   }
-  console.log("test");
-  console.log(lessons);
 
+  return sets;
 } 
 
 const CreateAccount = () => {
@@ -302,6 +312,10 @@ const CreateAccount = () => {
 
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
+        </Button>
+
+        <Button variant="default" onClick={initCardStatus} disabled={isValidating}>
+          
         </Button>
 
         <p className="text-center text-sm">
