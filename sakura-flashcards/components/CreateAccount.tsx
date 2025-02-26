@@ -17,7 +17,7 @@ import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
 import internal from "stream";
 
-
+//TODO: replace j < 3 and k < 100 with values from dataset
 const initCardStatus = () => {
   type unit = Map<number, boolean>;
 
