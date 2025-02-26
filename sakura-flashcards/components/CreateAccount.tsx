@@ -15,6 +15,33 @@ import {
 import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
+import internal from "stream";
+
+
+const initCardStatus = () => {
+  type unit = Map<number, boolean>;
+
+  type lesson = Array<unit>;
+
+  let lessons: lesson[] = new Array(23).fill(null).map(() => []);
+
+  for (let i = 0; i < 24; i++) {
+    let currentLesson: lesson = [];
+
+    for (let j = 0; j < 3; j++) {
+      let currentUnit: unit = new Map();
+      for (let k = 0; k < 100; k++) {
+        currentUnit.set(k, false);
+      }
+      currentLesson.push(currentUnit);
+    }
+
+    lessons[i] = currentLesson;
+  }
+  console.log("test");
+  console.log(lessons);
+
+} 
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
