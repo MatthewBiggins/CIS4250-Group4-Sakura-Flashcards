@@ -6,8 +6,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   collection,
+  doc,
   serverTimestamp,
   addDoc,
+  setDoc,
   query,
   where,
   getDocs,
@@ -18,38 +20,79 @@ import UserContext from "@/components/UserContext";
 import internal from "stream";
 import { genkiData } from '@/data';
 
+
+// create custom data types for card data
+type unit = Map<number, boolean>;
+
+type lesson = Array<unit>;
+
+type set = Array<lesson>;
+
+let sets: set[] = [];
+
+// Used to create a datatype to store each flashcard as a key value pair,
+// where the key is the flashcard index, and the value is the staus of
+// whether the flashcard has been viewed. Each flashcard value is initialized
+// as false.
 const initCardStatus = () => {
-  type unit = Map<number, boolean>;
 
-  type lesson = Array<unit>;
-
-  type set = Array<lesson>;
-
-  let sets: set[] = [];
-  
+  // fill sets array with lessons, units, and cards, and initialize each card to false
+  // genkiData - studySet data from @/data
   for (let studySet of genkiData) {
     let currentSet: set = [];
+
+    // iterate through each lesson in the studySet
     for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
       let currentLesson: lesson = [];
 
-      let units = studySet.data[lessonIndex].units;
+      // iterate though each unit in the lesson
+      let lessonData = studySet.data[lessonIndex];
+      let units = lessonData.units;
       let numUnits = units.length;
       for (let unitIndex = 0; unitIndex < numUnits; unitIndex++) {
         let currentUnit: unit = new Map();
         
+        // iterate through each card in the unit
         let numCards = units[unitIndex].items.length;
         for (let cardIndex = 0; cardIndex < numCards; cardIndex++) {
+          // init each card to false
           currentUnit.set(cardIndex, false);
+
         }
         currentLesson.push(currentUnit);
+
       }
       currentSet.push(currentLesson);
+
     }
     sets.push(currentSet);
+
   }
 
   return sets;
 } 
+
+
+// Used to add user progress data to user doc in firebase
+const addUserProgressToFirebase = (progress: set[], userId: string) => {
+
+  // add progress for Genki I
+  progress[0].forEach(async (lesson, index) => {
+    const unitObject = lesson.map(unit => Object.fromEntries(unit));
+    await setDoc(doc(db, "users", userId, "studySetI", `Lesson-${index}`), {
+      units: unitObject,
+    });
+  });
+
+  // add progress for Genki II
+  progress[1].forEach(async (lesson, index) => {
+    const unitObject = lesson.map(unit => Object.fromEntries(unit));
+    await setDoc(doc(db, "users", userId, "studySetII", `Lesson-${progress[0].length + index}`), {
+      units: unitObject,
+    });
+  });
+}
+
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -102,6 +145,10 @@ const CreateAccount = () => {
       // Hash the password before storing it
       const hashedPassword = await hash(data.password);
 
+      // init user progress data
+      let progress = initCardStatus()
+
+      //add user to database
       await addDoc(collection(db, "users"), {
         email: data.email,
         username: data.username,
@@ -109,12 +156,17 @@ const CreateAccount = () => {
         createdAt: serverTimestamp(),
       });
 
+      // used to retreive the user id of the recently created user
+      const userQuery = query(usersRef, where("email", "==", data.email));
+      const userSnapshot = await getDocs(userQuery);
+
+      // add initial user progress data to firebase
+      addUserProgressToFirebase(progress, userSnapshot.docs[0].id);
+
       console.log("Account created successfully!");
       console.log("Username:", data.username);
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
-
-      let progress = initCardStatus()
       
       // Log in the new user
       auth.setUser(data.username);
@@ -313,6 +365,9 @@ const CreateAccount = () => {
 
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
+        </Button>
+        <Button variant="default" onClick={initCardStatus} disabled={isValidating}>
+          
         </Button>
         <p className="text-center text-sm">
           Have an account?{" "}

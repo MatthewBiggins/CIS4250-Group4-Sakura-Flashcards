@@ -6,6 +6,8 @@ import { FaForward, FaBackward } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
 
+import UserContext from "./UserContext";
+
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
 };

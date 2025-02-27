@@ -5,7 +5,7 @@ import { useContext } from "react";
 import UserContext from "./UserContext";
 
 const WelcomeMessage = () => {
-  const { userName, progress } = useContext(UserContext);
+  const { userName } = useContext(UserContext);
 
   return (
     <div>
