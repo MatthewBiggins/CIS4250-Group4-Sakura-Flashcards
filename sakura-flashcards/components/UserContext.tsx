@@ -6,13 +6,13 @@ type unit = Map<number, boolean>;
 
 type lesson = Array<unit>;
 
-type set = Array<lesson>;
+type genkiSet = Array<lesson>;
 
 interface AuthContext {
   userName: string;
   setUser: (name: string) => void;
-  progress: set[];
-  setProgress: (newProgress: set[]) => void;
+  progress: genkiSet[];
+  setProgress: (newProgress: genkiSet[]) => void;
 }
 
 const UserContext = createContext<AuthContext>({
@@ -28,7 +28,7 @@ export function UserProvider({
   children: React.ReactNode;
 }>) {
   const [userName, setUser] = useState("");
-  const [progress, setProgress] = useState<set[]>([]);
+  const [progress, setProgress] = useState<genkiSet[]>([]);
 
   return (
     <UserContext.Provider value={{ userName, setUser, progress, setProgress }}>
