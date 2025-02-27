@@ -26,7 +26,7 @@ type unit = Map<number, boolean>;
 
 type lesson = Array<unit>;
 
-type set = Array<lesson>;
+type genkiSet = Array<lesson>;
 
 // Used to create a datatype to store each flashcard as a key value pair,
 // where the key is the flashcard index, and the value is the staus of
@@ -34,12 +34,12 @@ type set = Array<lesson>;
 // as false.
 const initCardStatus = () => {
 
-  let sets: set[] = [];
+  let sets: genkiSet[] = [];
 
   // fill sets array with lessons, units, and cards, and initialize each card to false
   // genkiData - studySet data from @/data
   for (let studySet of genkiData) {
-    let currentSet: set = [];
+    let currentSet: genkiSet = [];
 
     // iterate through each lesson in the studySet
     for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
@@ -74,7 +74,7 @@ const initCardStatus = () => {
 
 
 // Used to add user progress data to user doc in firebase
-const addUserProgressToFirebase = (progress: set[], userId: string) => {
+const addUserProgressToFirebase = (progress: genkiSet[], userId: string) => {
 
   // add progress for Genki I
   progress[0].forEach(async (lesson, index) => {
