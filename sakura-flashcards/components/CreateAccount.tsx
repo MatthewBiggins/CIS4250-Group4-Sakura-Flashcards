@@ -28,13 +28,13 @@ type lesson = Array<unit>;
 
 type set = Array<lesson>;
 
-let sets: set[] = [];
-
 // Used to create a datatype to store each flashcard as a key value pair,
 // where the key is the flashcard index, and the value is the staus of
 // whether the flashcard has been viewed. Each flashcard value is initialized
 // as false.
 const initCardStatus = () => {
+
+  let sets: set[] = [];
 
   // fill sets array with lessons, units, and cards, and initialize each card to false
   // genkiData - studySet data from @/data
