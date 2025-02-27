@@ -39,9 +39,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
     }
-    // update flashcard to true in the progress once flipped
-    progress[index[0]][index[1]][index[2]].set(currentIndex, true);
     
+    if (progress.length != 0 && progress != undefined) {
+      // update flashcard to true in the progress once flipped
+      progress[index[0]][index[1]][index[2]].set(currentIndex, true);
+    }
   };
 
   // Next card
