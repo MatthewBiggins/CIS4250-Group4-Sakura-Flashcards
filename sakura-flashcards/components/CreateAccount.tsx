@@ -43,10 +43,8 @@ const initCardStatus = () => {
         }
         currentLesson.push(currentUnit);
       }
-    
       currentSet.push(currentLesson);
     }
-
     sets.push(currentSet);
   }
 
@@ -116,8 +114,11 @@ const CreateAccount = () => {
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
 
+      let progress = initCardStatus()
+      
       // Log in the new user
       auth.setUser(data.username);
+      auth.setProgress(progress);
 
       // Navigate to home page
       router.push("/");
