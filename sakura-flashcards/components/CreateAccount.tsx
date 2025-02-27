@@ -18,8 +18,7 @@ import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
 import internal from "stream";
-import { genkiData } from '@/data';
-
+import { genkiData } from "@/data";
 
 // create custom data types for card data
 type unit = Map<number, boolean>;
@@ -33,7 +32,6 @@ type genkiSet = Array<lesson>;
 // whether the flashcard has been viewed. Each flashcard value is initialized
 // as false.
 const initCardStatus = () => {
-
   let sets: genkiSet[] = [];
 
   // fill sets array with lessons, units, and cards, and initialize each card to false
@@ -42,7 +40,11 @@ const initCardStatus = () => {
     let currentSet: genkiSet = [];
 
     // iterate through each lesson in the studySet
-    for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
+    for (
+      let lessonIndex = 0;
+      lessonIndex < studySet.data.length;
+      lessonIndex++
+    ) {
       let currentLesson: lesson = [];
 
       // iterate though each unit in the lesson
@@ -51,34 +53,28 @@ const initCardStatus = () => {
       let numUnits = units.length;
       for (let unitIndex = 0; unitIndex < numUnits; unitIndex++) {
         let currentUnit: unit = new Map();
-        
+
         // iterate through each card in the unit
         let numCards = units[unitIndex].items.length;
         for (let cardIndex = 0; cardIndex < numCards; cardIndex++) {
           // init each card to false
           currentUnit.set(cardIndex, false);
-
         }
         currentLesson.push(currentUnit);
-
       }
       currentSet.push(currentLesson);
-
     }
     sets.push(currentSet);
-
   }
 
   return sets;
-} 
-
+};
 
 // Used to add user progress data to user doc in firebase
 const addUserProgressToFirebase = (progress: genkiSet[], userId: string) => {
-
   // add progress for Genki I
   progress[0].forEach(async (lesson, index) => {
-    const unitObject = lesson.map(unit => Object.fromEntries(unit));
+    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
     await setDoc(doc(db, "users", userId, "studySetI", `Lesson-${index}`), {
       units: unitObject,
     });
@@ -86,13 +82,21 @@ const addUserProgressToFirebase = (progress: genkiSet[], userId: string) => {
 
   // add progress for Genki II
   progress[1].forEach(async (lesson, index) => {
-    const unitObject = lesson.map(unit => Object.fromEntries(unit));
-    await setDoc(doc(db, "users", userId, "studySetII", `Lesson-${progress[0].length + index}`), {
-      units: unitObject,
-    });
+    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
+    await setDoc(
+      doc(
+        db,
+        "users",
+        userId,
+        "studySetII",
+        `Lesson-${progress[0].length + index}`
+      ),
+      {
+        units: unitObject,
+      }
+    );
   });
-}
-
+};
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -146,7 +150,7 @@ const CreateAccount = () => {
       const hashedPassword = await hash(data.password);
 
       // init user progress data
-      let progress = initCardStatus()
+      let progress = initCardStatus();
 
       //add user to database
       await addDoc(collection(db, "users"), {
@@ -167,13 +171,13 @@ const CreateAccount = () => {
       console.log("Username:", data.username);
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
-      
+
       // Log in the new user
       auth.setUser(data.username);
       auth.setProgress(progress);
 
       // Navigate to home page
-      router.push("/");
+      router.push("/dashboard");
 
       // Handle errors with appropriate error messages
     } catch (error) {
