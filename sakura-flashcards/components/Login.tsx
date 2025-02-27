@@ -50,7 +50,7 @@ const Login = () => {
       auth.setUser(userDoc.username);
 
       // Navigate to home page
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       setErrors({ submit: (error as Error).message });
     } finally {
