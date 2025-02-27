@@ -314,11 +314,6 @@ const CreateAccount = () => {
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
         </Button>
-
-        <Button variant="default" onClick={initCardStatus} disabled={isValidating}>
-          
-        </Button>
-
         <p className="text-center text-sm">
           Have an account?{" "}
           <Link
