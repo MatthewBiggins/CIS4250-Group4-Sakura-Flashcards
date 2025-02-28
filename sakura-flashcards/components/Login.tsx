@@ -8,14 +8,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import db from "@/firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
-
-
-type unit = Map<number, boolean>;
-
-type lesson = Array<unit>;
-
-type genkiSet = Array<lesson>;
-
+import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 
 // Used to retrieve the progress subcollections genkiSetI and genkiSetII from the firebase 
 // and load the data into the custom types genkiSet, lesson, and unit
@@ -29,10 +22,10 @@ const getProgressFromFirebase = async (querySnapshot: any) => {
   const setIIRef = collection(querySnapshot.docs[0].ref, "studySetII");
   const setIISnapshot = await getDocs(setIIRef);
 
-  let sets: genkiSet[] = [];
+  let sets: TStudySetProgress[] = [];
 
   // get lesson I data
-  let lessonsI: lesson[] = [];
+  let lessonsI: TLessonProgress[] = [];
   for (let doc of setISnapshot.docs) {
     let data = doc.data().units
 
@@ -48,7 +41,7 @@ const getProgressFromFirebase = async (querySnapshot: any) => {
   }
 
   // get lesson II data
-  let lessonsII: lesson[] = [];
+  let lessonsII: TLessonProgress[] = [];
   for (let doc of setIISnapshot.docs) {
     let data = doc.data().units
 
