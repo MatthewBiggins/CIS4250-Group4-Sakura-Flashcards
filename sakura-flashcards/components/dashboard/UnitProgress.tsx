@@ -1,4 +1,4 @@
-import { IUnitData, TUnitProgress } from "@/constants";
+import { TUnitProgress } from "@/constants";
 
 interface ProgressProps {
   name: string;
@@ -6,20 +6,33 @@ interface ProgressProps {
   totalFlashcards: number;
 }
 
-export default function UnitProgress(props: ProgressProps) {
-  var progress = 0;
+export function countUnitProgress(data: TUnitProgress) {
+  let progress = 0;
 
   // Count how many flashcards are completed
-  props.progress.forEach((cardCompleted) => {
+  data.forEach((cardCompleted) => {
     if (cardCompleted) {
       progress++;
     }
   });
 
+  return progress;
+}
+
+export default function UnitProgress(props: ProgressProps) {
   return (
-    <div>
-      <p>{((progress / props.totalFlashcards) * 100).toFixed(0)}%</p>
-      <p>{props.name}</p>
+    <div
+      id={props.name}
+      className="rounded-lg bg-black border border-violet-900 p-4 lg:p-6 justify-center text-center w-48"
+    >
+      <p className="text-2xl font-bold">
+        {(
+          (countUnitProgress(props.progress) / props.totalFlashcards) *
+          100
+        ).toFixed(0)}
+        %
+      </p>
+      <p className="text-pretty">{props.name}</p>
     </div>
   );
 }

@@ -4,13 +4,28 @@ import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import UserContext from "@/components/UserContext";
 import { genkiData } from "@/data";
-import StudySetProgress from "./dashboard/StudySetProgress";
-import { TStudySetProgress, TUnitProgress } from "@/constants";
+import StudySetProgress from "@/components/dashboard/StudySetProgress";
+import { TStudySetProgress } from "@/constants";
 
-const testUnit: TUnitProgress = new Map();
-testUnit.set(0, true);
-testUnit.set(1, false);
-const testProgress: TStudySetProgress[] = [[[testUnit]], [[testUnit]]];
+// TODO: remove test data
+function generateTestData() {
+  let testProgress: TStudySetProgress[] = genkiData.map((studySet) => {
+    return studySet.data.map((lesson) => {
+      return lesson.units.map((unit) => {
+        const data = new Map();
+
+        unit.items.forEach((_, i) => {
+          data.set(i, i % 3 == 0);
+        });
+
+        return data;
+      });
+    });
+  });
+
+  return testProgress;
+}
+const testProgress = generateTestData();
 
 export default function Dashboard() {
   const UserData = useContext(UserContext);
