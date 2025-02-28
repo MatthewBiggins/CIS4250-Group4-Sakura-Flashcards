@@ -117,6 +117,7 @@ const Login = () => {
       console.log(userDoc);
       auth.setUser(userDoc.username);
       auth.setProgress(await progress);
+      auth.setUserId(querySnapshot.docs[0].id);
 
       // Navigate to home page
       router.push("/");

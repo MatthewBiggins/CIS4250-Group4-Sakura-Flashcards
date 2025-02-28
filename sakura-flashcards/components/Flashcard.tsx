@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { useContext } from "react";
 import UserContext from "./UserContext";
 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import db from "../firebase/configuration";
+
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
   index: Array<number>;
@@ -24,7 +32,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
 
-  const { progress } = useContext(UserContext);
+  const { progress, userId } = useContext(UserContext);
 
   // Delay changing the card back by 150ms to allow the flip animation to complete
   useEffect(() => {
@@ -34,15 +42,36 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }, [currentIndex]);
 
   // Flip card
-  const handleFlip = () => {
+  const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
     }
     
     if (progress.length != 0 && progress != undefined) {
-      // update flashcard to true in the progress once flipped
+      // update flashcard to true in the progress context once flipped
       progress[index[0]][index[1]][index[2]].set(currentIndex, true);
+
+      // get units from database
+      let docRef;
+      if (index[0] == 0) {
+        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
+
+      }else {
+        docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
+
+      }
+
+      // get snapshot and check that it exists
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists()) {
+        // set the flashcard to true and update the firebase
+        const units = docSnapshot.data().units;
+        units[index[2]][currentIndex] = true;
+        await updateDoc(docRef, {
+          units: units,
+        });
+      }
     }
   };
 

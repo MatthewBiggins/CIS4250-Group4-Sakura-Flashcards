@@ -13,6 +13,8 @@ interface AuthContext {
   setUser: (name: string) => void;
   progress: genkiSet[];
   setProgress: (newProgress: genkiSet[]) => void;
+  userId: string;
+  setUserId: (id: string) => void;
 }
 
 const UserContext = createContext<AuthContext>({
@@ -20,6 +22,8 @@ const UserContext = createContext<AuthContext>({
   setUser: () => {},
   progress: [],
   setProgress: () => {},
+  userId: "",
+  setUserId: () => {},
 });
 
 export function UserProvider({
@@ -29,9 +33,10 @@ export function UserProvider({
 }>) {
   const [userName, setUser] = useState("");
   const [progress, setProgress] = useState<genkiSet[]>([]);
+  const [userId, setUserId] = useState("");
 
   return (
-    <UserContext.Provider value={{ userName, setUser, progress, setProgress }}>
+    <UserContext.Provider value={{ userName, setUser, progress, setProgress, userId, setUserId }}>
       {children}
     </UserContext.Provider>
   );
