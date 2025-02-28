@@ -8,6 +8,8 @@ interface AuthContext {
   setUser: (name: string) => void;
   progress: TStudySetProgress[];
   setProgress: (newProgress: TStudySetProgress[]) => void;
+  userId: string;
+  setUserId: (name: string) => void;
 }
 
 const UserContext = createContext<AuthContext>({
@@ -31,6 +33,7 @@ export function UserProvider({
 }>) {
   const [userName, setUser] = useState(getInitialUserName());
   const [progress, setProgress] = useState<TStudySetProgress[]>([]);
+  const [userId, setUserId] = useState("");
 
   // NOTE: current work around for context bug (#50)
   useEffect(() => {
