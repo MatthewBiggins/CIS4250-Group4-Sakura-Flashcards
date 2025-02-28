@@ -177,7 +177,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </div>
       </div>
 
-      {/* progressBar Bar */}
+      {/* progress bar */}
       <div className="bg-zinc-700 dark:bg-gray-700 h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl custom-transition"
