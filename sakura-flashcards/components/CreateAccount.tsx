@@ -17,68 +17,60 @@ import {
 import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
-import internal from "stream";
-import { genkiData } from '@/data';
-
-
-// create custom data types for card data
-type unit = Map<number, boolean>;
-
-type lesson = Array<unit>;
-
-type genkiSet = Array<lesson>;
+import { genkiData } from "@/data";
+import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 
 // Used to create a datatype to store each flashcard as a key value pair,
 // where the key is the flashcard index, and the value is the staus of
 // whether the flashcard has been viewed. Each flashcard value is initialized
 // as false.
 const initCardStatus = () => {
-
-  let sets: genkiSet[] = [];
+  let sets: TStudySetProgress[] = [];
 
   // fill sets array with lessons, units, and cards, and initialize each card to false
   // genkiData - studySet data from @/data
   for (let studySet of genkiData) {
-    let currentSet: genkiSet = [];
+    let currentSet: TStudySetProgress = [];
 
     // iterate through each lesson in the studySet
-    for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
-      let currentLesson: lesson = [];
+    for (
+      let lessonIndex = 0;
+      lessonIndex < studySet.data.length;
+      lessonIndex++
+    ) {
+      let currentLesson: TLessonProgress = [];
 
       // iterate though each unit in the lesson
       let lessonData = studySet.data[lessonIndex];
       let units = lessonData.units;
       let numUnits = units.length;
       for (let unitIndex = 0; unitIndex < numUnits; unitIndex++) {
-        let currentUnit: unit = new Map();
-        
+        let currentUnit: TUnitProgress = new Map();
+
         // iterate through each card in the unit
         let numCards = units[unitIndex].items.length;
         for (let cardIndex = 0; cardIndex < numCards; cardIndex++) {
           // init each card to false
           currentUnit.set(cardIndex, false);
-
         }
         currentLesson.push(currentUnit);
-
       }
       currentSet.push(currentLesson);
-
     }
     sets.push(currentSet);
-
   }
 
   return sets;
-} 
-
+};
 
 // Used to add user progress data to user doc in firebase
-const addUserProgressToFirebase = (progress: genkiSet[], userId: string) => {
-
+const addUserProgressToFirebase = (
+  progress: TStudySetProgress[],
+  userId: string
+) => {
   // add progress for Genki I
   progress[0].forEach(async (lesson, index) => {
-    const unitObject = lesson.map(unit => Object.fromEntries(unit));
+    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
     await setDoc(doc(db, "users", userId, "studySetI", `Lesson-${index}`), {
       units: unitObject,
     });
@@ -86,13 +78,21 @@ const addUserProgressToFirebase = (progress: genkiSet[], userId: string) => {
 
   // add progress for Genki II
   progress[1].forEach(async (lesson, index) => {
-    const unitObject = lesson.map(unit => Object.fromEntries(unit));
-    await setDoc(doc(db, "users", userId, "studySetII", `Lesson-${progress[0].length + index}`), {
-      units: unitObject,
-    });
+    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
+    await setDoc(
+      doc(
+        db,
+        "users",
+        userId,
+        "studySetII",
+        `Lesson-${progress[0].length + index}`
+      ),
+      {
+        units: unitObject,
+      }
+    );
   });
-}
-
+};
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
@@ -146,7 +146,7 @@ const CreateAccount = () => {
       const hashedPassword = await hash(data.password);
 
       // init user progress data
-      let progress = initCardStatus()
+      let progress = initCardStatus();
 
       //add user to database
       await addDoc(collection(db, "users"), {
@@ -167,7 +167,7 @@ const CreateAccount = () => {
       console.log("Username:", data.username);
       console.log("Email:", data.email);
       console.log("Password:", hashedPassword);
-      
+
       // Log in the new user
       auth.setUser(data.username);
       auth.setProgress(progress);

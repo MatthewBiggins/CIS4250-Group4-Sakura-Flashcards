@@ -1,20 +1,13 @@
 "use client";
 
-import { createContext, useState } from "react";
-
-type unit = Map<number, boolean>;
-
-type lesson = Array<unit>;
-
-type genkiSet = Array<lesson>;
+import { TStudySetProgress } from "@/constants";
+import { createContext, useEffect, useState } from "react";
 
 interface AuthContext {
   userName: string;
   setUser: (name: string) => void;
-  progress: genkiSet[];
-  setProgress: (newProgress: genkiSet[]) => void;
-  userId: string;
-  setUserId: (id: string) => void;
+  progress: TStudySetProgress[];
+  setProgress: (newProgress: TStudySetProgress[]) => void;
 }
 
 const UserContext = createContext<AuthContext>({
@@ -26,14 +19,23 @@ const UserContext = createContext<AuthContext>({
   setUserId: () => {},
 });
 
+function getInitialUserName() {
+  const userName = localStorage.getItem("username");
+  return userName ? userName : "";
+}
+
 export function UserProvider({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [userName, setUser] = useState("");
-  const [progress, setProgress] = useState<genkiSet[]>([]);
-  const [userId, setUserId] = useState("");
+  const [userName, setUser] = useState(getInitialUserName());
+  const [progress, setProgress] = useState<TStudySetProgress[]>([]);
+
+  // NOTE: current work around for context bug (#50)
+  useEffect(() => {
+    localStorage.setItem("username", userName);
+  }, [userName]);
 
   return (
     <UserContext.Provider value={{ userName, setUser, progress, setProgress, userId, setUserId }}>
