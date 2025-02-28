@@ -8,6 +8,63 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import db from "@/firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
+import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
+
+// Used to retrieve the progress subcollections genkiSetI and genkiSetII from the firebase 
+// and load the data into the custom types genkiSet, lesson, and unit
+const getProgressFromFirebase = async (querySnapshot: any) => {
+
+  // get set 1
+  const setIRef = collection(querySnapshot.docs[0].ref, "studySetI");
+  const setISnapshot = await getDocs(setIRef);
+
+  // get set 2
+  const setIIRef = collection(querySnapshot.docs[0].ref, "studySetII");
+  const setIISnapshot = await getDocs(setIIRef);
+
+  let sets: TStudySetProgress[] = [];
+
+  // get lesson I data
+  let lessonsI: TLessonProgress[] = [];
+  for (let doc of setISnapshot.docs) {
+    let data = doc.data().units
+
+    // cast firebase javascript object to map
+    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
+      new Map<number, boolean>(
+        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
+      )
+    );
+    
+    lessonsI.push(unitMaps);
+
+  }
+
+  // get lesson II data
+  let lessonsII: TLessonProgress[] = [];
+  for (let doc of setIISnapshot.docs) {
+    let data = doc.data().units
+
+    // cast firebase javascript object to map
+    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
+      new Map<number, boolean>(
+        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
+      )
+    );
+
+    lessonsII.push(unitMaps);
+
+  }
+  
+  sets.push(lessonsI);
+  sets.push(lessonsII);
+
+  return sets;
+
+}
+
+
+
 
 const Login = () => {
   // State to store form data and validation errors
@@ -40,6 +97,9 @@ const Login = () => {
       const userDoc = querySnapshot.docs[0].data();
       const hashedPassword = await hash(data.password);
 
+      //get progress data
+      let progress = getProgressFromFirebase(querySnapshot);
+
       console.log("Entered hashed password:", hashedPassword);
 
       // Compare the hashed input password with the stored hashed password
@@ -47,7 +107,10 @@ const Login = () => {
         throw new Error("Incorrect password");
       }
 
+      console.log(userDoc);
       auth.setUser(userDoc.username);
+      auth.setProgress(await progress);
+      auth.setUserId(querySnapshot.docs[0].id);
 
       // Navigate to home page
       router.push("/");

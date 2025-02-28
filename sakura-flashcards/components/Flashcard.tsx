@@ -6,21 +6,33 @@ import { FaForward, FaBackward } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
 
+import { useContext } from "react";
 import UserContext from "./UserContext";
+
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import db from "../firebase/configuration";
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
+  index: Array<number>;
 };
 
-const Flashcard = ({ cardData }: FlashcardProps) => {
+const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const [progressBar, setProgressBar] = useState(0);
 
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
+
+  const { progress, userId } = useContext(UserContext);
 
   // Delay changing the card back by 150ms to allow the flip animation to complete
   useEffect(() => {
@@ -30,10 +42,36 @@ const Flashcard = ({ cardData }: FlashcardProps) => {
   }, [currentIndex]);
 
   // Flip card
-  const handleFlip = () => {
+  const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
+    }
+    
+    if (progress.length != 0 && progress != undefined) {
+      // update flashcard to true in the progress context once flipped
+      progress[index[0]][index[1]][index[2]].set(currentIndex, true);
+
+      // get units from database
+      let docRef;
+      if (index[0] == 0) {
+        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
+
+      }else {
+        docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
+
+      }
+
+      // get snapshot and check that it exists
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists()) {
+        // set the flashcard to true and update the firebase
+        const units = docSnapshot.data().units;
+        units[index[2]][currentIndex] = true;
+        await updateDoc(docRef, {
+          units: units,
+        });
+      }
     }
   };
 
@@ -41,10 +79,10 @@ const Flashcard = ({ cardData }: FlashcardProps) => {
   const handleNext = () => {
     if (currentIndex === total - 2 || currentIndex > total - 2) {
       setCurrentIndex(total - 1);
-      setProgress(100);
+      setProgressBar(100);
     } else if (currentIndex < total - 1) {
       setCurrentIndex((prev) => prev + 1);
-      setProgress((prev) => prev + 100 / (total - 1));
+      setProgressBar((prev) => prev + 100 / (total - 1));
     }
     if (currentIndex !== total - 1) {
       setIsFlipped(false);
@@ -55,10 +93,10 @@ const Flashcard = ({ cardData }: FlashcardProps) => {
   const handleBack = () => {
     if (currentIndex === 1 || currentIndex < 1) {
       setCurrentIndex(0);
-      setProgress(0);
+      setProgressBar(0);
     } else if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
-      setProgress((prev) => prev - 100 / (total - 1));
+      setProgressBar((prev) => prev - 100 / (total - 1));
     }
     if (currentIndex !== 0) {
       setIsFlipped(false);
@@ -139,11 +177,11 @@ const Flashcard = ({ cardData }: FlashcardProps) => {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* progress bar */}
       <div className="bg-zinc-700 dark:bg-gray-700 h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl custom-transition"
-          style={{ width: `${progress}%` }}
+          style={{ width: `${progressBar}%` }}
         />
       </div>
     </div>

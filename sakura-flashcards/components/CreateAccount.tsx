@@ -171,6 +171,8 @@ const CreateAccount = () => {
       // Log in the new user
       auth.setUser(data.username);
       auth.setProgress(progress);
+      auth.setUserId(userSnapshot.docs[0].id);
+
 
       // Navigate to home page
       router.push("/");

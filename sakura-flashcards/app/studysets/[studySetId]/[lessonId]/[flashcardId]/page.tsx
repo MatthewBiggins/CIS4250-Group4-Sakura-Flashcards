@@ -18,6 +18,12 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
   const lesson = studySet.data.filter((lesson) => lesson.slug === lessonId)[0];
   const unit = lesson.units.filter((unit) => unit.slug === flashcardId)[0];
 
+  // track index of set, lessons, and unit for progress tracking
+  const index: number[] = [];
+  index.push(genkiData.indexOf(studySet));
+  index.push(studySet.data.indexOf(lesson));
+  index.push(lesson.units.indexOf(unit));
+  
   return (
     <div className="w-full rounded-lg bg-black border border-violet-900 p-4 lg:p-6">
       <div className="mb-12 space-y-5">
@@ -36,7 +42,7 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
         </div>
 
         {/* Flashcard Component */}
-        <Flashcard cardData={unit.items} />
+        <Flashcard cardData={unit.items} index={index}/>
       </div>
 
       <section className="space-y-5">
