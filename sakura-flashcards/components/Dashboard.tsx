@@ -40,10 +40,14 @@ export default function Dashboard() {
     <div>
       <h1 className="text-4xl font-bold">{UserData.userName}</h1>
       {genkiData.map((studySet, i) => {
+        // Safely access progress with fallback
+        const studySetProgress = UserData.progress[i] || [];
+        
         return (
           <StudySetProgress
+            key={studySet.name}
             name={studySet.name}
-            progress={testProgress[i]}
+            progress={studySetProgress}
             data={studySet.data}
           />
         );
