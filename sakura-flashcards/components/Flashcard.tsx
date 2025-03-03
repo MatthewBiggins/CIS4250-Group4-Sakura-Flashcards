@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaForward, FaBackward } from 'react-icons/fa';
+import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
 
@@ -103,6 +103,12 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   };
 
+  const handleResponse = async (isCorrect: boolean) => {
+    // if (isCorrect) await updateProgress(true);
+    handleNext();
+  };
+
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -127,16 +133,12 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div
-        className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]"
-        onClick={handleFlip}
-      >
-        {/* Flashcard */}
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
           animate={{ rotateX: isFlipped ? 180 : 360 }}
-          transition={{ duration: 0.1, type: 'tween', animationDirection: 'normal' }}
+          transition={{ duration: 0.1, type: 'tween' }}
           onAnimationComplete={() => setIsAnimating(false)}
         >
           <div className="flip-card-front w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
@@ -148,44 +150,63 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
-      {/* Flashcard Controls */}
-      <div className="w-full h-full flex justify-center items-center font-semibold">
+      {/* Response Buttons */}
+      <div className="flex gap-4">
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={() => handleResponse(false)}
+          className="bg-red-500/20 hover:bg-red-500/30 text-red-500 hover:text-red-400 px-6"
+        >
+          <FaTimes className="mr-2" /> Incorrect
+        </Button>
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={() => handleResponse(true)}
+          className="bg-green-500/20 hover:bg-green-500/30 text-green-500 hover:text-green-400 px-6"
+        >
+          <FaCheck className="mr-2" /> Correct
+        </Button>
+      </div>
+
+      {/* Navigation Controls */}
+      <div className="w-full flex justify-center items-center font-semibold">
         <div className="relative flex justify-center items-center gap-28">
-          {/* Back */}
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => handleBack()}
+            onClick={handleBack}
             disabled={currentIndex === 0}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full custom-transition disabled:opacity-50"
+            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
           >
             <FaBackward className="size-6" />
           </Button>
           <div className="absolute">
             {currentIndex + 1} / {cardData.length}
           </div>
-          {/* Next */}
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => handleNext()}
+            onClick={handleNext}
             disabled={currentIndex === total - 1}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full custom-transition disabled:opacity-50"
+            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
           >
             <FaForward className="size-6" />
           </Button>
         </div>
       </div>
 
-      {/* progress bar */}
-      <div className="bg-zinc-700 dark:bg-gray-700 h-2 w-full rounded-2xl">
+      {/* Progress Bar */}
+      <div className="bg-zinc-700 h-2 w-full rounded-2xl">
         <div
-          className="h-full bg-violet-500 rounded-2xl custom-transition"
+          className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
           style={{ width: `${progressBar}%` }}
         />
       </div>
     </div>
   );
 };
+
 
 export default Flashcard;
