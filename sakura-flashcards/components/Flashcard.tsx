@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
-
 import { Button } from '@/components/ui/button';
-
 import { useContext } from "react";
 import UserContext from "./UserContext";
 
@@ -150,24 +148,38 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
-      {/* Response Buttons */}
-      <div className="flex gap-4">
-        <Button
-          variant="ghost"
-          size="lg"
-          onClick={() => handleResponse(false)}
-          className="bg-red-500/20 hover:bg-red-500/30 text-red-500 hover:text-red-400 px-6"
+      {/* Response Buttons - Fixed height container */}
+      <div className="h-20"> {/* Fixed height container */}
+        <motion.div
+          className="flex gap-4 justify-center"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ 
+            opacity: isFlipped ? 1 : 0,
+            y: isFlipped ? 0 : -10
+          }}
+          transition={{ duration: 0.2 }}
         >
-          <FaTimes className="mr-2" /> Incorrect
-        </Button>
-        <Button
-          variant="ghost"
-          size="lg"
-          onClick={() => handleResponse(true)}
-          className="bg-green-500/20 hover:bg-green-500/30 text-green-500 hover:text-green-400 px-6"
-        >
-          <FaCheck className="mr-2" /> Correct
-        </Button>
+          {isFlipped && (
+            <>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleResponse(false)}
+                className="bg-red-500/20 hover:bg-red-500/30 text-red-500 hover:text-red-400 px-6"
+              >
+                <FaTimes className="mr-2" /> Incorrect
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleResponse(true)}
+                className="bg-green-500/20 hover:bg-green-500/30 text-green-500 hover:text-green-400 px-6"
+              >
+                <FaCheck className="mr-2" /> Correct
+              </Button>
+            </>
+          )}
+        </motion.div>
       </div>
 
       {/* Navigation Controls */}
