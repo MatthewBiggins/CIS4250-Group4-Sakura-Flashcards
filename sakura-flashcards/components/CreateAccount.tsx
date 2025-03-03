@@ -175,7 +175,7 @@ const CreateAccount = () => {
 
 
       // Navigate to home page
-      router.push("/");
+      router.push("/dashboard");
 
       // Handle errors with appropriate error messages
     } catch (error) {
