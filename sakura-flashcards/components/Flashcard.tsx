@@ -32,6 +32,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   const { progress, userId } = useContext(UserContext);
 
+  
+
   // Delay changing the card back by 150ms to allow the flip animation to complete
   useEffect(() => {
     setTimeout(() => {
@@ -101,11 +103,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   };
 
-  const handleResponse = async (isCorrect: boolean) => {
-    // if (isCorrect) await updateProgress(true);
-    handleNext();
-  };
-
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -117,17 +114,51 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         case 'ArrowLeft':
           handleBack();
           break;
-        case ' ':
+        case ' ': // Space bar to flip
           event.preventDefault();
           handleFlip();
+          break;
+        case '1': // 1 key for Incorrect
+          event.preventDefault();
+          if (isFlipped) handleResponse(false);
+          break;
+        case '2': // 2 key for Correct
+          event.preventDefault();
+          if (isFlipped) handleResponse(true);
           break;
         default:
           break;
       }
-    };
+    };  
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex]);
+}, [currentIndex, isFlipped]);
+
+  const handleResponse = async (isCorrect: boolean) => {
+    if (isCorrect) {
+      // Update progress for correct answers
+      if (progress.length > 0 && userId) {
+        progress[index[0]][index[1]][index[2]].set(currentIndex, true);
+        
+        const docPath = index[0] === 0 
+          ? ["studySetI", `Lesson-${index[1]}`]
+          : ["studySetII", `Lesson-${index[1] + 13}`];
+        
+        const docRef = doc(db, "users", userId, ...docPath);
+        const docSnapshot = await getDoc(docRef);
+
+        if (docSnapshot.exists()) {
+          const units = docSnapshot.data().units;
+          units[index[2]][currentIndex] = true;
+          await updateDoc(docRef, { units });
+        }
+      }
+    }
+    
+    setIsFlipped(false);
+    handleNext();
+  };
+
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
