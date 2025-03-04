@@ -26,6 +26,11 @@ function getInitialUserName() {
   return userName ? userName : "";
 }
 
+function getInitialUserId() {
+  const userId = localStorage.getItem("userId");
+  return userId ? userId : "";
+}
+
 export function UserProvider({
   children,
 }: Readonly<{
@@ -33,15 +38,22 @@ export function UserProvider({
 }>) {
   const [userName, setUser] = useState(getInitialUserName());
   const [progress, setProgress] = useState<TStudySetProgress[]>([]);
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState(getInitialUserId());
 
   // NOTE: current work around for context bug (#50)
   useEffect(() => {
     localStorage.setItem("username", userName);
   }, [userName]);
 
+  // NOTE: current work around for context bug (#50)
+  useEffect(() => {
+    localStorage.setItem("userId", userId);
+  }, [userId]);
+
   return (
-    <UserContext.Provider value={{ userName, setUser, progress, setProgress, userId, setUserId }}>
+    <UserContext.Provider
+      value={{ userName, setUser, progress, setProgress, userId, setUserId }}
+    >
       {children}
     </UserContext.Provider>
   );
