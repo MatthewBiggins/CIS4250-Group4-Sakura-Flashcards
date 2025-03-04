@@ -26,24 +26,17 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressBar, setProgressBar] = useState(0);
   const [lastAction, setLastAction] = useState<'correct' | 'incorrect' | null>(null);
-
-
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
-
   const { progress, userId } = useContext(UserContext);
 
-  
-
-  // Delay changing the card back by 150ms to allow the flip animation to complete
   useEffect(() => {
     setTimeout(() => {
       setCardBack(currentCard.backSide);
     }, 150);
   }, [currentIndex]);
 
-  // Flip card
   const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -51,23 +44,21 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
     
     if (progress.length != 0 && progress != undefined) {
-      // update flashcard to true in the progress context once flipped
       progress[index[0]][index[1]][index[2]].set(currentIndex, true);
 
-      // get units from database
+      // Get units from current context
       let docRef;
       if (index[0] == 0) {
-        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
-
+        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`)
       }else {
         docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
 
       }
 
-      // get snapshot and check that it exists
+      // Check that snapshot currently exists
       const docSnapshot = await getDoc(docRef);
       if (docSnapshot.exists()) {
-        // set the flashcard to true and update the firebase
+        // Make an update to the database
         const units = docSnapshot.data().units;
         units[index[2]][currentIndex] = true;
         await updateDoc(docRef, {
@@ -105,26 +96,25 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   };
 
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case 'ArrowRight':
+        case 'ArrowRight':     // Arrow right for next card
           handleNext();
           break;
-        case 'ArrowLeft':
+        case 'ArrowLeft':      // Arrow left for previous card
           handleBack();
           break;
-        case ' ': // Space bar to flip
+        case ' ':              // Space bar to flip
           event.preventDefault();
           handleFlip();
           break;
-        case '1': // 1 key for Incorrect
+        case '1':              // 1 key for Incorrect
           event.preventDefault();
           if (isFlipped) handleResponse(false);
           break;
-        case '2': // 2 key for Correct
+        case '2':              // 2 key for Correct
           event.preventDefault();
           if (isFlipped) handleResponse(true);
           break;
@@ -169,8 +159,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   }, [lastAction]);
 
-
-
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
       <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
@@ -201,8 +189,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
-      {/* Response Buttons - Fixed height container */}
-      <div className="h-20"> {/* Fixed height container */}
+      <div className="h-20">
         <motion.div
           className="flex gap-4 justify-center"
           initial={{ opacity: 0, y: -10 }}
@@ -235,7 +222,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
-      {/* Navigation Controls */}
       <div className="w-full flex justify-center items-center font-semibold">
         <div className="relative flex justify-center items-center gap-28">
           <Button
@@ -262,7 +248,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </div>
       </div>
 
-      {/* Progress Bar */}
       <div className="bg-zinc-700 h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
