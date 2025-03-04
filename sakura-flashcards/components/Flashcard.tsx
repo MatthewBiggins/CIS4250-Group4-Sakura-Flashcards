@@ -49,7 +49,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       // Get units from current context
       let docRef;
       if (index[0] == 0) {
-        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`)
+        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
       }else {
         docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
 
