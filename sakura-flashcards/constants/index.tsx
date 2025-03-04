@@ -1,5 +1,6 @@
 export const navLinks = [
   { href: "/", key: "Home", text: "Home" },
+  { href: "/glossary", key: "Glossary", text: "Glossary" },
   {
     href: "/studysets",
     studySetId: "genki-1",

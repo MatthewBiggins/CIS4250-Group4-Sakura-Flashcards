@@ -36,11 +36,6 @@ export default function Glossary() {
   const UserData = useContext(UserContext) as UserData;
   const router = useRouter();
 
-  if (UserData.userName === "") {
-    router.push("/");
-    return <div>Redirecting...</div>;
-  }
-
   const allStudySets: string[] = typedGenkiData.map((studySet) => studySet.name);
   const [checkedStudySets, setCheckedStudySets] = useState<Record<string, boolean>>(
     Object.fromEntries(allStudySets.map((set) => [set, true]))
@@ -96,7 +91,6 @@ export default function Glossary() {
   return (
     <div className="flex">
       <div className="flex-1 p-4">
-        <h1 className="text-4xl font-bold mb-4">{UserData.userName}</h1>
         {typedGenkiData
           .filter((studySet) => checkedStudySets[studySet.name])
           .map((studySet, i) => {
