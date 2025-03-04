@@ -25,6 +25,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressBar, setProgressBar] = useState(0);
+  const [lastAction, setLastAction] = useState<'correct' | 'incorrect' | null>(null);
+
 
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
@@ -157,7 +159,16 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     
     setIsFlipped(false);
     handleNext();
+    setLastAction(isCorrect ? 'correct' : 'incorrect');
   };
+
+  useEffect(() => {
+    if (lastAction) {
+      const timer = setTimeout(() => setLastAction(null), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [lastAction]);
+
 
 
   return (
@@ -170,9 +181,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           transition={{ duration: 0.1, type: 'tween' }}
           onAnimationComplete={() => setIsAnimating(false)}
         >
-          <div className="flip-card-front w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
+          <motion.div
+            className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
+            initial={{ backgroundColor: '#27272a' }}
+            animate={{
+              backgroundColor: lastAction === 'correct' 
+                ? 'rgba(34, 197, 94, 0.2)' 
+                : lastAction === 'incorrect' 
+                ? 'rgba(239, 68, 68, 0.2)' 
+                : '#27272a',
+            }}
+            transition={{ duration: 0.3 }}
+          >
             <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
-          </div>
+          </motion.div>
           <div className="flip-card-back w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
