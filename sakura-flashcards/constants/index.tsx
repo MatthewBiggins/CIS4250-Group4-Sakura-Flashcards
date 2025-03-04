@@ -12,6 +12,7 @@ export const navLinks = [
     key: "genki-2",
     text: "Genki Vol. 2",
   },
+  { href: "/dashboard", key: "Dashboard", text: "Dashboard"}
 ];
 
 type Item = {
