@@ -57,3 +57,4 @@ export const genkiData = [
   { name: 'Genki Vol. I', slug: 'genki-1', data: genki_1_data },
   { name: 'Genki Vol. II', slug: 'genki-2', data: genki_2_data },
 ];
+

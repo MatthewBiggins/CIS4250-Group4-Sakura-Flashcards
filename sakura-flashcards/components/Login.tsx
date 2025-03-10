@@ -113,7 +113,7 @@ const Login = () => {
       auth.setUserId(querySnapshot.docs[0].id);
 
       // Navigate to home page
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       setErrors({ submit: (error as Error).message });
     } finally {

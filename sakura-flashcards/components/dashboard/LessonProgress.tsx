@@ -22,11 +22,8 @@ export function countLessonProgress(data: TLessonProgress) {
 }
 
 export default function LessonProgress(props: ProgressProps) {
-  // calculate the total flashcards in the lesson
-  let total = 0;
-  props.progress.forEach((unit) => {
-    total += unit.size;
-  });
+  // Calculate total flashcards
+  let total = props.data.reduce((acc, unit) => acc + unit.items.length, 0);
 
   return (
     <div id={props.name} className="rounded-lg bg-zinc-900 my-4 p-4">
@@ -36,12 +33,14 @@ export default function LessonProgress(props: ProgressProps) {
         progress={(countLessonProgress(props.progress) / total) * 100}
       />
       <div className="grid grid-cols-2 lg:grid-cols-4 place-items-start gap-4 w-fit">
-        {props.progress.map((unit, i) => {
+        {props.data.map((unit, i) => { // Map over data instead of progress
+          const unitProgress = props.progress[i] || new Map();
           return (
             <UnitProgress
-              name={props.data[i].title}
-              progress={unit}
-              totalFlashcards={props.data[i].items.length}
+              key={unit.title}
+              name={unit.title}
+              progress={unitProgress}
+              totalFlashcards={unit.items.length}
             />
           );
         })}
