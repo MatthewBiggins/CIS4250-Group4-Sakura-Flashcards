@@ -8,7 +8,7 @@ import { AnimatePresence } from "framer-motion";
 
 import MobileSidebar from "@/components/MobileSidebar";
 import { navLinks } from "@/constants";
-import UserContext from "@/components/UserContext";
+import UserContext from "@/components/context/UserContext";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -17,6 +17,7 @@ const Header = () => {
 
   const handleLogOut = () => {
     auth.setUser("");
+    auth.setUserId("");
   };
 
   return (

@@ -21,12 +21,12 @@ const UserContext = createContext<AuthContext>({
   setUserId: () => {},
 });
 
-function getInitialUserName() {
+function getStoredUserName() {
   const userName = localStorage.getItem("username");
   return userName ? userName : "";
 }
 
-function getInitialUserId() {
+function getStoredUserId() {
   const userId = localStorage.getItem("userId");
   return userId ? userId : "";
 }
@@ -36,16 +36,16 @@ export function UserProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [userName, setUser] = useState(getInitialUserName());
+  const [userName, setUser] = useState(getStoredUserName());
+  const [userId, setUserId] = useState(getStoredUserId());
   const [progress, setProgress] = useState<TStudySetProgress[]>([]);
-  const [userId, setUserId] = useState(getInitialUserId());
 
-  // NOTE: current work around for context bug (#50)
+  // NOTE: save the username to the brower cache
   useEffect(() => {
     localStorage.setItem("username", userName);
   }, [userName]);
 
-  // NOTE: current work around for context bug (#50)
+  // NOTE: save the userId to the brower cache
   useEffect(() => {
     localStorage.setItem("userId", userId);
   }, [userId]);

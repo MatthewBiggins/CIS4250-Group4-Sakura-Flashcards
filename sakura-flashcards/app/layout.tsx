@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
-import { UserProvider } from "@/components/UserContext";
+import { UserProvider } from "@/components/context/UserContext";
 
 export const metadata: Metadata = {
   title: "Sakura Flashcards",

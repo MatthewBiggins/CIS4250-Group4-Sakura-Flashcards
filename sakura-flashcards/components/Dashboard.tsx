@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
-import UserContext from "@/components/UserContext";
+import UserContext from "@/components/context/UserContext";
 import { genkiData } from "@/data";
 import StudySetProgress from "@/components/dashboard/StudySetProgress";
 import { TStudySetProgress } from "@/constants";
