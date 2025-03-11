@@ -1,13 +1,10 @@
 "use client";
 
-import { TStudySetProgress } from "@/constants";
 import { createContext, useEffect, useState } from "react";
 
 interface AuthContext {
   userName: string;
   setUser: (name: string) => void;
-  progress: TStudySetProgress[];
-  setProgress: (newProgress: TStudySetProgress[]) => void;
   userId: string;
   setUserId: (name: string) => void;
 }
@@ -15,8 +12,6 @@ interface AuthContext {
 const UserContext = createContext<AuthContext>({
   userName: "",
   setUser: () => {},
-  progress: [],
-  setProgress: () => {},
   userId: "",
   setUserId: () => {},
 });
@@ -38,7 +33,6 @@ export function UserProvider({
 }>) {
   const [userName, setUser] = useState(getStoredUserName());
   const [userId, setUserId] = useState(getStoredUserId());
-  const [progress, setProgress] = useState<TStudySetProgress[]>([]);
 
   // NOTE: save the username to the brower cache
   useEffect(() => {
@@ -51,9 +45,7 @@ export function UserProvider({
   }, [userId]);
 
   return (
-    <UserContext.Provider
-      value={{ userName, setUser, progress, setProgress, userId, setUserId }}
-    >
+    <UserContext.Provider value={{ userName, setUser, userId, setUserId }}>
       {children}
     </UserContext.Provider>
   );
