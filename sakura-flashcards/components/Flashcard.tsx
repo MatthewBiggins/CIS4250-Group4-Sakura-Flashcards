@@ -9,9 +9,9 @@ import UserContext from "./UserContext";
 
 import {
   doc,
-  setDoc,
   getDoc,
   updateDoc,
+  increment,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
 
@@ -41,30 +41,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     if (!isAnimating) {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
-    }
-    
-    if (progress.length != 0 && progress != undefined) {
-      progress[index[0]][index[1]][index[2]].set(currentIndex, true);
-
-      // Get units from current context
-      let docRef;
-      if (index[0] == 0) {
-        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
-      }else {
-        docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
-
-      }
-
-      // Check that snapshot currently exists
-      const docSnapshot = await getDoc(docRef);
-      if (docSnapshot.exists()) {
-        // Make an update to the database
-        const units = docSnapshot.data().units;
-        units[index[2]][currentIndex] = true;
-        await updateDoc(docRef, {
-          units: units,
-        });
-      }
     }
   };
 
@@ -126,31 +102,42 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
 }, [currentIndex, isFlipped]);
 
-  const handleResponse = async (isCorrect: boolean) => {
-    if (isCorrect) {
-      // Update progress for correct answers
-      if (progress.length > 0 && userId) {
-        progress[index[0]][index[1]][index[2]].set(currentIndex, true);
-        
-        const docPath = index[0] === 0 
-          ? ["studySetI", `Lesson-${index[1]}`]
-          : ["studySetII", `Lesson-${index[1] + 13}`];
-        
-        const docRef = doc(db, "users", userId, ...docPath);
-        const docSnapshot = await getDoc(docRef);
-
-        if (docSnapshot.exists()) {
-          const units = docSnapshot.data().units;
-          units[index[2]][currentIndex] = true;
-          await updateDoc(docRef, { units });
-        }
-      }
-    }
+const handleResponse = async (isCorrect: boolean) => {
+  if (userId) {
+    const docPath = index[0] === 0 
+      ? ["studySetI", `Lesson-${index[1]}`]
+      : ["studySetII", `Lesson-${index[1] + 13}`];
     
-    setIsFlipped(false);
-    handleNext();
-    setLastAction(isCorrect ? 'correct' : 'incorrect');
-  };
+    const docRef = doc(db, "users", userId, ...docPath);
+    const fieldPath = `units.${index[2]}.${currentIndex}.${isCorrect ? 'correct' : 'incorrect'}`;
+
+    try {
+      await updateDoc(docRef, {
+        [fieldPath]: increment(1)
+      });
+
+      // Update local progress context
+      if (progress.length > 0) {
+        const currentCounts = progress[index[0]][index[1]][index[2]].get(currentIndex) || 
+          { correct: 0, incorrect: 0 };
+        
+        if (isCorrect) {
+          currentCounts.correct++;
+        } else {
+          currentCounts.incorrect++;
+        }
+        
+        progress[index[0]][index[1]][index[2]].set(currentIndex, currentCounts);
+      }
+    } catch (error) {
+      console.error("Error updating counts:", error);
+    }
+  }
+
+  setIsFlipped(false);
+  handleNext();
+  setLastAction(isCorrect ? 'correct' : 'incorrect');
+};
 
   useEffect(() => {
     if (lastAction) {

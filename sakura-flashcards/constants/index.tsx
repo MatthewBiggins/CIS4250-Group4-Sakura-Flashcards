@@ -41,8 +41,12 @@ export const StudySets: { name: string; items: Item[] }[] = [
   },
 ];
 
-// create custom data types for card data
-export type TUnitProgress = Map<number, boolean>;
+export type TCardProgress = {
+  correct: number;
+  incorrect: number;
+};
+
+export type TUnitProgress = Map<number, TCardProgress>;
 export type TLessonProgress = Array<TUnitProgress>;
 export type TStudySetProgress = Array<TLessonProgress>;
 
