@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
-import UserContext from "./UserContext";
+import UserContext from "./context/UserContext";
 
 import {
   doc,
@@ -29,7 +29,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
-  const { progress, userId } = useContext(UserContext);
+  const { userId } = useContext(UserContext);
 
   useEffect(() => {
     setTimeout(() => {
@@ -42,17 +42,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
     }
-    
-    if (progress.length != 0 && progress != undefined) {
-      progress[index[0]][index[1]][index[2]].set(currentIndex, true);
 
+    if (userId) {
       // Get units from current context
       let docRef;
       if (index[0] == 0) {
         docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
-      }else {
-        docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
-
+      } else {
+        docRef = doc(
+          db,
+          "users",
+          userId,
+          "studySetII",
+          `Lesson-${index[1] + 13}`
+        );
       }
 
       // Check that snapshot currently exists
@@ -100,42 +103,41 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case 'ArrowRight':     // Arrow right for next card
+        case "ArrowRight": // Arrow right for next card
           handleNext();
           break;
-        case 'ArrowLeft':      // Arrow left for previous card
+        case "ArrowLeft": // Arrow left for previous card
           handleBack();
           break;
-        case ' ':              // Space bar to flip
+        case " ": // Space bar to flip
           event.preventDefault();
           handleFlip();
           break;
-        case '1':              // 1 key for Incorrect
+        case "1": // 1 key for Incorrect
           event.preventDefault();
           if (isFlipped) handleResponse(false);
           break;
-        case '2':              // 2 key for Correct
+        case "2": // 2 key for Correct
           event.preventDefault();
           if (isFlipped) handleResponse(true);
           break;
         default:
           break;
       }
-    };  
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-}, [currentIndex, isFlipped]);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, isFlipped]);
 
   const handleResponse = async (isCorrect: boolean) => {
     if (isCorrect) {
       // Update progress for correct answers
-      if (progress.length > 0 && userId) {
-        progress[index[0]][index[1]][index[2]].set(currentIndex, true);
-        
-        const docPath = index[0] === 0 
-          ? ["studySetI", `Lesson-${index[1]}`]
-          : ["studySetII", `Lesson-${index[1] + 13}`];
-        
+      if (userId) {
+        const docPath =
+          index[0] === 0
+            ? ["studySetI", `Lesson-${index[1]}`]
+            : ["studySetII", `Lesson-${index[1] + 13}`];
+
         const docRef = doc(db, "users", userId, ...docPath);
         const docSnapshot = await getDoc(docRef);
 
@@ -146,10 +148,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         }
       }
     }
-    
+
     setIsFlipped(false);
     handleNext();
-    setLastAction(isCorrect ? 'correct' : 'incorrect');
+    setLastAction(isCorrect ? "correct" : "incorrect");
   };
 
   useEffect(() => {

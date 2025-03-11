@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
-import UserContext from "@/components/UserContext";
+import UserContext from "@/components/context/UserContext";
 import { genkiData } from "@/data";
 import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 
@@ -170,7 +170,6 @@ const CreateAccount = () => {
 
       // Log in the new user
       auth.setUser(data.username);
-      auth.setProgress(progress);
       auth.setUserId(userSnapshot.docs[0].id);
 
 

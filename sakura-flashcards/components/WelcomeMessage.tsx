@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useContext } from "react";
-import UserContext from "./UserContext";
+import UserContext from "./context/UserContext";
 
 const WelcomeMessage = () => {
   const { userName } = useContext(UserContext);
