@@ -14,6 +14,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
+import { useSearchParams } from 'next/navigation';
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
@@ -30,6 +31,9 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { progress, userId } = useContext(UserContext);
+  const searchParams = new URLSearchParams(document.location.search);
+  const studyMode = searchParams.get('studymode');
+  const [currentAnswer, setCurrentAnswer] = useState("")
 
   useEffect(() => {
     setTimeout(() => {
@@ -108,7 +112,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           break;
         case ' ':              // Space bar to flip
           event.preventDefault();
-          handleFlip();
+          if (studyMode == 'mc') {
+            handleMcConfirm();
+          } else {
+            handleFlip();
+          }
           break;
         case '1':              // 1 key for Incorrect
           event.preventDefault();
@@ -147,9 +155,17 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       }
     }
     
-    setIsFlipped(false);
-    handleNext();
+    if (studyMode != 'mc') {
+      setIsFlipped(false);
+      handleNext();
+    }
     setLastAction(isCorrect ? 'correct' : 'incorrect');
+  };
+
+  const handleMcConfirm = async () => {
+    setIsFlipped(true);
+    handleResponse(currentAnswer == cardBack);
+    setCurrentAnswer("");
   };
 
   useEffect(() => {
@@ -161,7 +177,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
@@ -187,6 +203,34 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
+        {studyMode == 'mc' && (
+          <> 
+            <input
+                type="radio"
+                value={"wrong answer"}
+                checked={currentAnswer == "wrong answer"}
+                onChange={() => {setCurrentAnswer("wrong answer")}}
+              />
+              {"wrong answer"}
+              <br/>
+            <input
+                type="radio"
+                value={cardBack}
+                checked={currentAnswer == cardBack}
+                onChange={() => {setCurrentAnswer(cardBack)}}
+              />
+              {cardBack}
+              <br/>
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={handleMcConfirm}
+              className="px-6"
+            >
+              Confirm Answer
+            </Button>
+          </>
+        )}
       </div>
 
       <div className="h-20">
@@ -199,7 +243,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           }}
           transition={{ duration: 0.2 }}
         >
-          {isFlipped && (
+          {(isFlipped && studyMode != 'mc') && (
             <>
               <Button
                 variant="ghost"
