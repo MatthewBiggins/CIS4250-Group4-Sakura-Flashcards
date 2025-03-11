@@ -8,7 +8,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import db from "@/firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
-import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
+import { TCardProgress, TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 
 // Used to retrieve the progress subcollections genkiSetI and genkiSetII from the firebase 
 // and load the data into the custom types genkiSet, lesson, and unit
@@ -24,47 +24,34 @@ const getProgressFromFirebase = async (querySnapshot: any) => {
 
   let sets: TStudySetProgress[] = [];
 
-  // get lesson I data
+  // Process study set I
   let lessonsI: TLessonProgress[] = [];
-  for (let doc of setISnapshot.docs) {
-    let data = doc.data().units
-
-    // cast firebase javascript object to map
-    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
-      new Map<number, boolean>(
-        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
+  for (const doc of setISnapshot.docs) {
+    const data = doc.data().units;
+    const unitMaps: TUnitProgress[] = data.map((unitData: { cards: TCardProgress[] }) => 
+      new Map<number, TCardProgress>(
+        unitData.cards.map((cardProgress, index) => [index, cardProgress])
       )
     );
-    
     lessonsI.push(unitMaps);
-
   }
 
-  // get lesson II data
+  // Process study set II
   let lessonsII: TLessonProgress[] = [];
-  for (let doc of setIISnapshot.docs) {
-    let data = doc.data().units
-
-    // cast firebase javascript object to map
-    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
-      new Map<number, boolean>(
-        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
+  for (const doc of setIISnapshot.docs) {
+    const data = doc.data().units;
+    const unitMaps: TUnitProgress[] = data.map((unitData: { cards: TCardProgress[] }) => 
+      new Map<number, TCardProgress>(
+        unitData.cards.map((cardProgress, index) => [index, cardProgress])
       )
     );
-
     lessonsII.push(unitMaps);
-
   }
-  
+
   sets.push(lessonsI);
   sets.push(lessonsII);
-
   return sets;
-
 }
-
-
-
 
 const Login = () => {
   // State to store form data and validation errors
@@ -98,7 +85,7 @@ const Login = () => {
       const hashedPassword = await hash(data.password);
 
       //get progress data
-      let progress = getProgressFromFirebase(querySnapshot);
+      const progress = await getProgressFromFirebase(querySnapshot);
 
       console.log("Entered hashed password:", hashedPassword);
 
@@ -108,8 +95,9 @@ const Login = () => {
       }
 
       console.log(userDoc);
+
       auth.setUser(userDoc.username);
-      auth.setProgress(await progress);
+      auth.setProgress(progress);
       auth.setUserId(querySnapshot.docs[0].id);
 
       // Navigate to home page

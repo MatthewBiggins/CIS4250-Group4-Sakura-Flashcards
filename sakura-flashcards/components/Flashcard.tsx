@@ -10,6 +10,7 @@ import UserContext from "./UserContext";
 import {
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   increment,
 } from "firebase/firestore";
@@ -103,40 +104,59 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 }, [currentIndex, isFlipped]);
 
 const handleResponse = async (isCorrect: boolean) => {
-  if (userId) {
-    const docPath = index[0] === 0 
-      ? ["studySetI", `Lesson-${index[1]}`]
-      : ["studySetII", `Lesson-${index[1] + 13}`];
-    
-    const docRef = doc(db, "users", userId, ...docPath);
-    const fieldPath = `units.${index[2]}.${currentIndex}.${isCorrect ? 'correct' : 'incorrect'}`;
-
-    try {
-      await updateDoc(docRef, {
-        [fieldPath]: increment(1)
-      });
-
-      // Update local progress context
-      if (progress.length > 0) {
-        const currentCounts = progress[index[0]][index[1]][index[2]].get(currentIndex) || 
-          { correct: 0, incorrect: 0 };
-        
-        if (isCorrect) {
-          currentCounts.correct++;
-        } else {
-          currentCounts.incorrect++;
-        }
-        
-        progress[index[0]][index[1]][index[2]].set(currentIndex, currentCounts);
-      }
-    } catch (error) {
-      console.error("Error updating counts:", error);
-    }
+  if (!userId) {
+    console.error("User not authenticated");
+    return;
   }
 
-  setIsFlipped(false);
-  handleNext();
-  setLastAction(isCorrect ? 'correct' : 'incorrect');
+  try {
+    // 1. Construct document reference
+    const studySet = index[0] === 0 ? "studySetI" : "studySetII";
+    const lessonNumber = index[0] === 0 ? index[1] : index[1] + 13;
+    const docRef = doc(db, "users", userId, studySet, `Lesson-${lessonNumber}`);
+
+    // 2. Get current document data
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Document does not exist");
+    }
+
+    // 3. Verify and maintain structure
+    const currentData = docSnap.data();
+    const updatedUnits = currentData.units.map((unit: any, unitIndex: number) => {
+      if (unitIndex !== index[2]) return unit;
+      
+      // Clone the cards array to avoid mutation
+      const cards = unit.cards?.map((card: TCardProgress, cardIndex: number) => {
+        if (cardIndex !== currentIndex) return card;
+        return {
+          correct: isCorrect ? card.correct + 1 : card.correct,
+          incorrect: !isCorrect ? card.incorrect + 1 : card.incorrect
+        };
+      }) || [];
+      
+      return { ...unit, cards };
+    });
+
+    // 4. Update the entire document with merged data
+    await setDoc(docRef, {
+      units: updatedUnits
+    }, { merge: true });
+
+    // 5. Update local state
+    if (progress.length > 0) {
+      const unitMap = progress[index[0]][index[1]][index[2]];
+      const currentCounts = unitMap.get(currentIndex) || { correct: 0, incorrect: 0 };
+      currentCounts[isCorrect ? "correct" : "incorrect"]++;
+      unitMap.set(currentIndex, currentCounts);
+    }
+
+    setIsFlipped(false);
+    handleNext();
+    setLastAction(isCorrect ? 'correct' : 'incorrect');
+  } catch (error) {
+    console.error("Update failed:", error);
+  }
 };
 
   useEffect(() => {

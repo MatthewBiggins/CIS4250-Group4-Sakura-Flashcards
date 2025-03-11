@@ -18,7 +18,7 @@ import db from "../firebase/configuration";
 import { hash } from "@/utils/hash";
 import UserContext from "@/components/UserContext";
 import { genkiData } from "@/data";
-import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
+import { TCardProgress, TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 
 // Used to create a datatype to store each flashcard as a key value pair,
 // where the key is the flashcard index, and the value is the staus of
@@ -27,34 +27,24 @@ import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
 const initCardStatus = () => {
   let sets: TStudySetProgress[] = [];
 
-  // fill sets array with lessons, units, and cards, and initialize each card to false
-  // genkiData - studySet data from @/data
   for (let studySet of genkiData) {
     let currentSet: TStudySetProgress = [];
 
-    // iterate through each lesson in the studySet
-    for (
-      let lessonIndex = 0;
-      lessonIndex < studySet.data.length;
-      lessonIndex++
-    ) {
+    for (let lessonIndex = 0; lessonIndex < studySet.data.length; lessonIndex++) {
       let currentLesson: TLessonProgress = [];
-
-      // iterate though each unit in the lesson
       let lessonData = studySet.data[lessonIndex];
-      let units = lessonData.units;
-      let numUnits = units.length;
-      for (let unitIndex = 0; unitIndex < numUnits; unitIndex++) {
+      
+      lessonData.units.forEach((unit) => {
         let currentUnit: TUnitProgress = new Map();
-
-        // iterate through each card in the unit
-        let numCards = units[unitIndex].items.length;
-        for (let cardIndex = 0; cardIndex < numCards; cardIndex++) {
-          // init each card to false
-          currentUnit.set(cardIndex, false);
-        }
+        
+        // Initialize as array index-based entries
+        unit.items.forEach((_, cardIndex) => {
+          currentUnit.set(cardIndex, { correct: 0, incorrect: 0 });
+        });
+        
         currentLesson.push(currentUnit);
-      }
+      });
+      
       currentSet.push(currentLesson);
     }
     sets.push(currentSet);
@@ -63,33 +53,30 @@ const initCardStatus = () => {
   return sets;
 };
 
-// Used to add user progress data to user doc in firebase
 const addUserProgressToFirebase = (
   progress: TStudySetProgress[],
   userId: string
 ) => {
-  // add progress for Genki I
-  progress[0].forEach(async (lesson, index) => {
-    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
-    await setDoc(doc(db, "users", userId, "studySetI", `Lesson-${index}`), {
-      units: unitObject,
+  // Add progress for Genki I
+  progress[0].forEach(async (lesson, lessonIndex) => {
+    const unitsData = lesson.map(unit => ({
+      cards: Array.from(unit.values())
+    }));
+
+    await setDoc(doc(db, "users", userId, "studySetI", `Lesson-${lessonIndex}`), {
+      units: unitsData
     });
   });
 
-  // add progress for Genki II
-  progress[1].forEach(async (lesson, index) => {
-    const unitObject = lesson.map((unit) => Object.fromEntries(unit));
+  // Add progress for Genki II
+  progress[1].forEach(async (lesson, lessonIndex) => {
+    const unitsData = lesson.map(unit => ({
+      cards: Array.from(unit.values())
+    }));
+
     await setDoc(
-      doc(
-        db,
-        "users",
-        userId,
-        "studySetII",
-        `Lesson-${progress[0].length + index}`
-      ),
-      {
-        units: unitObject,
-      }
+      doc(db, "users", userId, "studySetII", `Lesson-${progress[0].length + lessonIndex}`),
+      { units: unitsData }
     );
   });
 };
