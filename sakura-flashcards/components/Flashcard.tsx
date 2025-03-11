@@ -34,6 +34,19 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const searchParams = new URLSearchParams(document.location.search);
   const studyMode = searchParams.get('studymode');
   const [currentAnswer, setCurrentAnswer] = useState("")
+  var answers = Shuffle(["wrong answer", "wrong answer", "wrong answer", cardBack]);
+
+  function Shuffle(values: string[]) {
+    for (var i = 0; i < values.length * 3; i++) {
+      var index1 = Math.floor(Math.random() * values.length); // Generate random indexes
+      var index2 = Math.floor(Math.random() * values.length);
+      
+      var temp = values[index1]; // and swap them
+      values[index1] = values[index2];
+      values[index2] = temp;
+    }
+    return values
+  }
 
   useEffect(() => {
     setTimeout(() => {
@@ -205,22 +218,18 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
         {studyMode == 'mc' && (
           <> 
-            <input
-                type="radio"
-                value={"wrong answer"}
-                checked={currentAnswer == "wrong answer"}
-                onChange={() => {setCurrentAnswer("wrong answer")}}
-              />
-              {"wrong answer"}
-              <br/>
-            <input
-                type="radio"
-                value={cardBack}
-                checked={currentAnswer == cardBack}
-                onChange={() => {setCurrentAnswer(cardBack)}}
-              />
-              {cardBack}
-              <br/>
+            {answers.map(answer => (
+              <>
+                <input
+                  type="radio"
+                  value={answer}
+                  checked={currentAnswer == answer}
+                  onChange={() => {setCurrentAnswer(answer)}}
+                  />
+                  {answer}
+                  <br/>
+              </>
+            ))}
             <Button
               variant="ghost"
               size="lg"
