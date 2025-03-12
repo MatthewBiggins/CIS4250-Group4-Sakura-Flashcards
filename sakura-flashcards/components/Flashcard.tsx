@@ -14,7 +14,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
-import { useSearchParams } from 'next/navigation';
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
@@ -34,9 +33,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const searchParams = new URLSearchParams(document.location.search);
   const studyMode = searchParams.get('studymode');
   const [currentAnswer, setCurrentAnswer] = useState("")
-  var answers = Shuffle(["wrong answer", "wrong answer", "wrong answer", cardBack]);
+  const [answers, setAnswers] = useState(new Array<String>);
 
-  function Shuffle(values: string[]) {
+  const createAnswers = async () => {
+    var values = ["Wrong Answer 1", "Wrong Answer 2", "Wrong Answer 3", cardBack];
     for (var i = 0; i < values.length * 3; i++) {
       var index1 = Math.floor(Math.random() * values.length); // Generate random indexes
       var index2 = Math.floor(Math.random() * values.length);
@@ -45,8 +45,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       values[index1] = values[index2];
       values[index2] = temp;
     }
-    return values
+    setAnswers(values);
   }
+  useEffect(()=>{
+    createAnswers();
+  }, [cardBack])
 
   useEffect(() => {
     setTimeout(() => {
@@ -222,11 +225,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
               <>
                 <input
                   type="radio"
-                  value={answer}
-                  checked={currentAnswer == answer}
-                  onChange={() => {setCurrentAnswer(answer)}}
+                  value={answer.valueOf()}
+                  checked={currentAnswer == answer.valueOf()}
+                  onChange={() => {setCurrentAnswer(answer.valueOf())}}
                   />
-                  {answer}
+                  {answer.valueOf()}
                   <br/>
               </>
             ))}
