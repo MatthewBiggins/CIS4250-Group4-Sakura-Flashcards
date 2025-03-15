@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans">
+      <body className="dark font-sans">
         <div className="flex flex-col relative min-h-dvh">
           <UserProvider>
             <Header />
