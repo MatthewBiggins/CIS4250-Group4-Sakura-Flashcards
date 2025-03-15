@@ -25,7 +25,7 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
   index.push(lesson.units.indexOf(unit));
   
   return (
-    <div className="w-full rounded-lg bg-black border border-violet-900 p-4 lg:p-6">
+    <div className="w-full rounded-lg bg-globalBackground border border-violet-900 p-4 lg:p-6">
       <div className="mb-12 space-y-5">
         <div className="space-y-1.5">
           {/* Back link */}
@@ -36,7 +36,7 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
             <FaArrowLeft /> Back
           </Link>
           <h1 className="text-2xl sm:text-4xl font-bold">{unit.title}</h1>
-          <p className="text-neutral-400 font-semibold">
+          <p className="font-semibold">
             Lesson {lesson.lessonNumber}: {lesson.lessonTitle} ({lesson.lessonPages})
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
           {unit.items.map((item, i) => (
             <li
               key={`${unit.slug}-${i}`}
-              className="grid sm:grid-cols-2 items-center gap-4 rounded-lg bg-zinc-900 p-4 lg:p-6"
+              className="grid sm:grid-cols-2 items-center gap-4 rounded-lg bg-lessonLink p-4 lg:p-6"
             >
               <div className="text-2xl">{item.frontSide}</div>
               <div className="text-lg">{item.backSide}</div>

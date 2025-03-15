@@ -52,6 +52,13 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        globalBackground: "hsl(var(--globalBackground))",
+        textColour: "hsl(var(--textColour))",
+        lessonLink: {
+          DEFAULT: "hsl(var(--lessonLink))",
+          hover: "hsl(var(--lessonLink-hover))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -9,8 +9,8 @@ const WelcomeMessage = () => {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold text-neutral-950">Sakura Flashcards</h1>
-      <p className="mt-3 md:text-lg text-neutral-950">
+      <h1 className="text-4xl font-bold">Sakura Flashcards</h1>
+      <p className="mt-3 md:text-lg">
         Welcome {userName ? userName : ""} to Sakura Flashcards, your ultimate
         study companion for mastering Japanese! Designed to align seamlessly
         with the{" "}

@@ -31,6 +31,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
 
+  // tailwind colours
+  const rootStyles = getComputedStyle(document.documentElement);
+  const rawCardColour = rootStyles.getPropertyValue("--lessonLink-hover").trim()
+  const cardColour = `hsl(${rawCardColour})`;
+
   useEffect(() => {
     setTimeout(() => {
       setCardBack(currentCard.backSide);
@@ -173,19 +178,19 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         >
           <motion.div
             className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: '#27272a' }}
+            initial={{ backgroundColor: cardColour }}
             animate={{
               backgroundColor: lastAction === 'correct' 
                 ? 'rgba(34, 197, 94, 0.2)' 
                 : lastAction === 'incorrect' 
                 ? 'rgba(239, 68, 68, 0.2)' 
-                : '#27272a',
+                : cardColour,
             }}
             transition={{ duration: 0.3 }}
           >
             <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
           </motion.div>
-          <div className="flip-card-back w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
+          <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
