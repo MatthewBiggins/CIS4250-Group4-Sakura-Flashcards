@@ -16,7 +16,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-// TODO: remove test data
+// Test Data for the dashboard
 function generateTestData() {
   let testProgress: TStudySetProgress[] = genkiData.map((studySet) => {
     return studySet.data.map((lesson) => {
@@ -101,6 +101,7 @@ export default function Dashboard() {
   const [progress, setProgress] = useState<TStudySetProgress[]>([]);
 
   if (UserData.userName == "") {
+    // if user not logged in then redirect to home page
     router.push("/");
     return <div>Redirecting...</div>;
   }
@@ -109,12 +110,14 @@ export default function Dashboard() {
     const docRef = doc(db, "users", UserData.userId);
     const querySnapshot = await getDoc(docRef);
 
-    //get progress data
+    // get progress data from firebase
     let progress = getProgressFromFirebase(querySnapshot);
 
+    // set the progress data
     setProgress(await progress);
   };
 
+  // if there is currently no progress data
   if (progress.length <= 0) {
     getProgress();
   }

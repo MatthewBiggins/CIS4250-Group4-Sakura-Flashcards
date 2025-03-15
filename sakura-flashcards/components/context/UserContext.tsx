@@ -16,11 +16,13 @@ const UserContext = createContext<AuthContext>({
   setUserId: () => {},
 });
 
+// Get the username from the brower cache
 function getStoredUserName() {
   const userName = localStorage.getItem("username");
   return userName ? userName : "";
 }
 
+// Get the userId from the brower cache
 function getStoredUserId() {
   const userId = localStorage.getItem("userId");
   return userId ? userId : "";
