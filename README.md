@@ -1,11 +1,5 @@
 # CIS4250 Section 1 Group 4
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
 ## Add your files
 
 ```
@@ -15,46 +9,22 @@ git branch -M main
 git push -uf origin main
 ```
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-
-Choose a self-explaining name for your project.
-
 ## Description
 
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Welcome to Group 4's repository. The application we chose to extend is Sakura Flashcards.
 
-## Usage
+Sakura Flashcards is an open-source web application developed in the React framework to help users learn the primary writing systems used in the Japanese language (Hiragana, Katana, Kanji). The application was developed with various web development tools including NextJS, Vercel, TypeScript, React, Tailwind, Framer Motion, and React Icons. The application is inspired by Quizlet, using flashcard exercises to help users recognize Japanese characters, words, and phrases. The material contains Genki I and II sets which compile multiple lessons of flashcards. Users interact with the application by first choosing a lesson set, choosing a lesson, and practicing with the flashcards. During a lesson, flashcards appear on the screen, each displaying a character, word, or phrase in Japanese. The answer can be revealed by clicking on the card. The user must use self-assessment to evaluate their understanding. The target users for this application are hobbyists and lifelong learners looking to reinforce or expand their repertoire of Japanese reading/speaking. 
 
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+For more details about Sakura Flashcards, see the README in the `sakura-flashcards` directory.
 
-## Roadmap
-
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+For more details about our plans for the project, see the repository's wiki.
 
 ## Authors and acknowledgment
 
-Show your appreciation to those who have contributed to the project.
+The original project creator is [kt946](https://github.com/kt946).
+
+The original project can be found here: https://github.com/kt946/sakura-flashcards
 
 ## License
 
-For open source projects, say how it is licensed.
-
-## Project status
-
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Sakura Flashcards is covered under the MIT license. We will fully credit the original developer and project, while adhering to any restrictions set within the license. The MIT license allows us to use, copy, modify and distribute the software as long as the copyright notice and permission notice is included in all copies or a substantial portion of the software.

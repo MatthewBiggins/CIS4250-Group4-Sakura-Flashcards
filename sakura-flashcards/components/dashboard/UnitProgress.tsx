@@ -9,7 +9,7 @@ interface ProgressProps {
 export function countUnitProgress(data: TUnitProgress) {
   let progress = 0;
 
-  // Count how many flashcards are completed
+  // Count how many flashcards are marked as completed
   data.forEach((cardCompleted) => {
     if (cardCompleted) {
       progress++;

@@ -172,8 +172,7 @@ const CreateAccount = () => {
       auth.setUser(data.username);
       auth.setUserId(userSnapshot.docs[0].id);
 
-
-      // Navigate to home page
+      // Navigate to progress dashboard page
       router.push("/dashboard");
 
       // Handle errors with appropriate error messages
@@ -236,11 +235,13 @@ const CreateAccount = () => {
     const { name, value, validationMessage } = e.currentTarget;
 
     if (value) {
+      // if something has been entered
       setErrors((prev) => ({
         ...prev,
         [name]: `Invalid ${name} has been entered.`,
       }));
     } else {
+      // if something has not been entered
       setErrors((prev) => ({
         ...prev,
         [name]: validationMessage,
@@ -258,6 +259,7 @@ const CreateAccount = () => {
         className="flex flex-col items-center justify-center space-y-2"
       >
         <div className="text-right space-y-2">
+          {/* Username */}
           <div className="space-x-2">
             <label htmlFor="username">Username:</label>
             <input
@@ -283,6 +285,7 @@ const CreateAccount = () => {
             <p className="text-sm text-red-500">{errors.username}</p>
           )}
 
+          {/* Email */}
           <div className="space-x-2">
             <label htmlFor="email">Email:</label>
             <input
@@ -308,6 +311,7 @@ const CreateAccount = () => {
             <p className="text-sm text-red-500">{errors.email}</p>
           )}
 
+          {/* Password */}
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
             <input
@@ -333,6 +337,7 @@ const CreateAccount = () => {
             <p className="text-sm text-red-500">{errors.password}</p>
           )}
 
+          {/* Password Confirmation */}
           <div className="space-x-2">
             <label htmlFor="password2">Confirm Password:</label>
             <input

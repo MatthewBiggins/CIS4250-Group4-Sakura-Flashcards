@@ -26,6 +26,7 @@ export default function RootLayout({
         <div className="flex flex-col relative min-h-dvh">
           <UserProvider>
             <Header />
+            {/* Current Page */}
             <main className="flex-1 py-8">{children}</main>
             {/* Background Pattern */}
             <div className="fixed inset-0 w-full h-full -z-10 bg-pattern" />

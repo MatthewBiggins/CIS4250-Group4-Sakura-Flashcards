@@ -37,16 +37,20 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
           </Link>
           <h1 className="text-2xl sm:text-4xl font-bold">{unit.title}</h1>
           <p className="font-semibold">
-            Lesson {lesson.lessonNumber}: {lesson.lessonTitle} ({lesson.lessonPages})
+            Lesson {lesson.lessonNumber}: {lesson.lessonTitle} (
+            {lesson.lessonPages})
           </p>
         </div>
 
         {/* Flashcard Component */}
-        <Flashcard cardData={unit.items} index={index}/>
+        <Flashcard cardData={unit.items} index={index} />
       </div>
 
+      {/* List of Terms in the unit */}
       <section className="space-y-5">
-        <h2 className="text-xl font-bold">Terms in this set ({unit.items.length})</h2>
+        <h2 className="text-xl font-bold">
+          Terms in this set ({unit.items.length})
+        </h2>
         <ul className="space-y-2">
           {unit.items.map((item, i) => (
             <li
