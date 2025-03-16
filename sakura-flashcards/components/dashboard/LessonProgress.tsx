@@ -28,12 +28,15 @@ export default function LessonProgress(props: ProgressProps) {
   return (
     <div id={props.name} className="rounded-lg bg-zinc-900 my-4 p-4">
       <h3 className="text-2xl font-bold">{props.name}</h3>
+      {/* Lesson Progress */}
       <ProgressBar
         showLabel={true}
         progress={(countLessonProgress(props.progress) / total) * 100}
       />
+      {/* Units in Lesson */}
       <div className="grid grid-cols-2 lg:grid-cols-4 place-items-start gap-4 w-fit">
-        {props.data.map((unit, i) => { // Map over data instead of progress
+        {props.data.map((unit, i) => {
+          // Map over data instead of progress
           const unitProgress = props.progress[i] || new Map();
           return (
             <UnitProgress

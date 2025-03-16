@@ -163,41 +163,49 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
+      {/* Flashcard */}
+      <div
+        className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]"
+        onClick={handleFlip}
+      >
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
           animate={{ rotateX: isFlipped ? 180 : 360 }}
-          transition={{ duration: 0.1, type: 'tween' }}
+          transition={{ duration: 0.1, type: "tween" }}
           onAnimationComplete={() => setIsAnimating(false)}
         >
+          {/* Flashcard Front */}
           <motion.div
             className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: '#27272a' }}
+            initial={{ backgroundColor: "#27272a" }}
             animate={{
-              backgroundColor: lastAction === 'correct' 
-                ? 'rgba(34, 197, 94, 0.2)' 
-                : lastAction === 'incorrect' 
-                ? 'rgba(239, 68, 68, 0.2)' 
-                : '#27272a',
+              backgroundColor:
+                lastAction === "correct"
+                  ? "rgba(34, 197, 94, 0.2)"
+                  : lastAction === "incorrect"
+                  ? "rgba(239, 68, 68, 0.2)"
+                  : "#27272a",
             }}
             transition={{ duration: 0.3 }}
           >
             <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
           </motion.div>
+          {/* Flashcard Back */}
           <div className="flip-card-back w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
       </div>
 
+      {/* Correct/Incorrect Buttons */}
       <div className="h-20">
         <motion.div
           className="flex gap-4 justify-center"
           initial={{ opacity: 0, y: -10 }}
-          animate={{ 
+          animate={{
             opacity: isFlipped ? 1 : 0,
-            y: isFlipped ? 0 : -10
+            y: isFlipped ? 0 : -10,
           }}
           transition={{ duration: 0.2 }}
         >
@@ -224,8 +232,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
+      {/* Flashcard Navigation Buttons */}
       <div className="w-full flex justify-center items-center font-semibold">
         <div className="relative flex justify-center items-center gap-28">
+          {/* Back Button */}
           <Button
             variant="ghost"
             size="lg"
@@ -235,9 +245,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           >
             <FaBackward className="size-6" />
           </Button>
+          {/* Current Card Index */}
           <div className="absolute">
             {currentIndex + 1} / {cardData.length}
           </div>
+          {/* Next Button */}
           <Button
             variant="ghost"
             size="lg"
@@ -250,6 +262,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </div>
       </div>
 
+      {/* Progress Bar */}
       <div className="bg-zinc-700 h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
