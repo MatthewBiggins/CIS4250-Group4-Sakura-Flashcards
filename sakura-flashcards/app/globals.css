@@ -57,7 +57,8 @@ body,
     /* background colour for lesson links */
     --lessonLink: 240, 6%, 10%; /* zinc 900 */
     --lessonLink-hover: 240, 4%, 16%; /* zinc 800 */
-
+    /* colour for lesson links and header */
+    --lessonColour: 0, 0%, 90%; /* neutral 200 */
   }
 
   .dark {
@@ -97,6 +98,8 @@ body,
     /* background colour for lesson links */
     --lessonLink: 240, 6%, 10%; /* zinc 900 */
     --lessonLink-hover: 240, 4%, 16%; /* zinc 800 */
+    /* colour for lesson links and header */
+    --lessonColour: 0, 0%, 90%; /* neutral 200 */
   }
 
   .light {
@@ -136,6 +139,8 @@ body,
     /* background colour for lesson links */
     --lessonLink: 240, 4%, 46%; /* zinc 500 */
     --lessonLink-hover: 240, 5%, 65%; /* zinc 400 */
+    /* colour for lesson links and header */
+    --lessonColour: 0, 0%, 90%; /* neutral 200 */
   }
 }
 

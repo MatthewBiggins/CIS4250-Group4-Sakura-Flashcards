@@ -66,9 +66,9 @@ export default function StudySet({ params }: StudySetProps) {
                       href={`/studysets/${studySet.slug}/${lesson.slug}/${unit.slug}`}
                       className="block space-y-1.5 rounded-lg px-5 py-3 bg-lessonLink hover:bg-lessonLink-hover custom-transition"
                     >
-                      <h4 className="text-lg sm:text-xl font-bold">{unit.title}</h4>
+                      <h4 className="text-lessonColour text-lg sm:text-xl font-bold">{unit.title}</h4>
 
-                      {<p className="line-clamp-3 font-semibold">{unit.items.length} Terms</p>}
+                      {<p className="text-lessonColour line-clamp-3 font-semibold">{unit.items.length} Terms</p>}
                     </Link>
                   ))}
                 </div>

@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import { UserProvider } from "@/components/context/UserContext";
+import ThemeProvider from "@/components/theme";
 
 export const metadata: Metadata = {
   title: "Sakura Flashcards",
@@ -17,9 +18,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
-    <html lang="en" className="light">
+    <html lang="en">
       <body className="font-sans">
+        <ThemeProvider />
         <div className="flex flex-col relative min-h-dvh">
           <UserProvider>
             <Header />

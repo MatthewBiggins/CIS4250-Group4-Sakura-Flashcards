@@ -59,6 +59,7 @@ const config = {
           DEFAULT: "hsl(var(--lessonLink))",
           hover: "hsl(var(--lessonLink-hover))",
         },
+        lessonColour: "hsl(var(--lessonColour))",
       },
       borderRadius: {
         lg: "var(--radius)",
