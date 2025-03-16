@@ -32,8 +32,12 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const { userId } = useContext(UserContext);
 
   // tailwind colours
-  const rootStyles = getComputedStyle(document.documentElement);
-  const rawCardColour = rootStyles.getPropertyValue("--lessonLink-hover").trim()
+  const themeWrapper = document.querySelector(".dark, .light");
+  let rawCardColour;
+  if (themeWrapper) {
+    const themeStyles = getComputedStyle(themeWrapper);
+    rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
+  }
   const cardColour = `hsl(${rawCardColour})`;
 
   useEffect(() => {
