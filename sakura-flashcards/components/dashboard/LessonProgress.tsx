@@ -26,7 +26,7 @@ export default function LessonProgress(props: ProgressProps) {
   let total = props.data.reduce((acc, unit) => acc + unit.items.length, 0);
 
   return (
-    <div id={props.name} className="rounded-lg bg-zinc-900 my-4 p-4">
+    <div id={props.name} className="rounded-lg bg-globalBackground my-4 p-4">
       <h3 className="text-2xl font-bold">{props.name}</h3>
       {/* Lesson Progress */}
       <ProgressBar

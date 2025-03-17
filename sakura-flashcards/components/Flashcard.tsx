@@ -250,7 +250,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             size="lg"
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaBackward className="size-6" />
           </Button>
@@ -264,7 +264,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             size="lg"
             onClick={handleNext}
             disabled={currentIndex === total - 1}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaForward className="size-6" />
           </Button>
@@ -272,7 +272,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-zinc-700 h-2 w-full rounded-2xl">
+      <div className="bg-lessonLink-hover h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
           style={{ width: `${progressBar}%` }}

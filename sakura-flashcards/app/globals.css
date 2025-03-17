@@ -100,6 +100,9 @@ body,
     --lessonLink-hover: 240, 4%, 16%; /* zinc 800 */
     /* colour for lesson links and header */
     --lessonColour: 0, 0%, 90%; /* neutral 200 */
+
+    --button: 240, 4%, 16%;
+    --button-hover: 240, 5%, 26%;
   }
 
   .light {
@@ -137,10 +140,14 @@ body,
 
     --textColour: 0, 0%, 4%; /* neutral 950 */
     /* background colour for lesson links */
-    --lessonLink: 240, 4%, 46%; /* zinc 500 */
-    --lessonLink-hover: 240, 5%, 65%; /* zinc 400 */
+    --lessonLink: 240, 5%, 65%; /* zinc 400 */
+    --lessonLink-hover: 240, 5%, 84%; /* zinc 300 NOTE: this is also used for the flashcards*/ 
     /* colour for lesson links and header */
-    --lessonColour: 0, 0%, 90%; /* neutral 200 */
+    /*--lessonColour: 0, 0%, 90%; /* neutral 200 */
+    --lessonColour: 0, 0%, 4%; /* neutral 200 */
+
+    --button: 240, 5%, 84%;
+    --button-hover: 240, 6%, 90%;
   }
 }
 

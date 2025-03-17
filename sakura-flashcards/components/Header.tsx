@@ -22,7 +22,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 p-4 max-sm:py-2 z-40 text-lessonColour bg-zinc-900/60 backdrop-blur border-b border-gray-300/20">
+      <header className="sticky top-0 p-4 max-sm:py-2 z-40 text-lessonColour bg-lessonLink backdrop-blur border-b border-gray-300/20">
         <nav className="md:container flex max-md:justify-between items-center gap-12">
           {/* Sakura Flashcards Logo */}
           <Link

@@ -55,7 +55,7 @@ export default function FlashcardPage({ params }: FlashcardPageProps) {
           {unit.items.map((item, i) => (
             <li
               key={`${unit.slug}-${i}`}
-              className="grid sm:grid-cols-2 items-center gap-4 rounded-lg bg-lessonLink p-4 lg:p-6"
+              className="grid sm:grid-cols-2 items-center gap-4 rounded-lg bg-lessonLink-hover p-4 lg:p-6"
             >
               <div className="text-2xl">{item.frontSide}</div>
               <div className="text-lg">{item.backSide}</div>
