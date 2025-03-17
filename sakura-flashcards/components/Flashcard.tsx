@@ -30,6 +30,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
+  const searchParams = new URLSearchParams(document.location.search);
+  const studyMode = searchParams.get('studymode');
+  const [currentAnswer, setCurrentAnswer] = useState("")
+  const [answers, setAnswers] = useState(new Array<String>());
 
   // tailwind colours
   const themeWrapper = document.querySelector(".dark, .light");
@@ -39,6 +43,29 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
   }
   const cardColour = `hsl(${rawCardColour})`;
+
+  const createAnswers = async () => {
+    var values = [getWrongAnswer(), getWrongAnswer(), getWrongAnswer(), cardBack];
+    for (var i = 0; i < values.length * 3; i++) {
+      var index1 = Math.floor(Math.random() * values.length); // Generate random indexes
+      var index2 = Math.floor(Math.random() * values.length);
+      
+      var temp = values[index1]; // and swap them
+      values[index1] = values[index2];
+      values[index2] = temp;
+    }
+    setAnswers(values);
+  }
+  function getWrongAnswer() {
+    var index;
+    do {
+      index = Math.floor(Math.random() * cardData.length);
+    } while (index == currentIndex);
+    return cardData[index].backSide;
+  }
+  useEffect(()=>{
+    createAnswers();
+  }, [cardBack])
 
   useEffect(() => {
     setTimeout(() => {
@@ -120,7 +147,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           break;
         case " ": // Space bar to flip
           event.preventDefault();
-          handleFlip();
+          if (studyMode == 'mc') {
+            handleMcConfirm();
+          } else {
+            handleFlip();
+          }
           break;
         case "1": // 1 key for Incorrect
           event.preventDefault();
@@ -157,10 +188,19 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         }
       }
     }
+    
+    if (studyMode != 'mc') {
+      setIsFlipped(false);
+      handleNext();
+    }
+    setLastAction(isCorrect ? 'correct' : 'incorrect');
 
-    setIsFlipped(false);
-    handleNext();
-    setLastAction(isCorrect ? "correct" : "incorrect");
+  };
+
+  const handleMcConfirm = async () => {
+    setIsFlipped(true);
+    handleResponse(currentAnswer == cardBack);
+    setCurrentAnswer("");
   };
 
   useEffect(() => {
@@ -172,11 +212,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      {/* Flashcard */}
-      <div
-        className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]"
-        onClick={handleFlip}
-      >
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
@@ -205,6 +241,30 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
+        {studyMode == 'mc' && (
+          <> 
+            {answers.map(answer => (
+              <>
+                <input
+                  type="radio"
+                  value={answer.valueOf()}
+                  checked={currentAnswer == answer.valueOf()}
+                  onChange={() => {setCurrentAnswer(answer.valueOf())}}
+                  />
+                  {answer.valueOf()}
+                  <br/>
+              </>
+            ))}
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={handleMcConfirm}
+              className="px-6"
+            >
+              Confirm Answer
+            </Button>
+          </>
+        )}
       </div>
 
       {/* Correct/Incorrect Buttons */}
@@ -218,7 +278,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           }}
           transition={{ duration: 0.2 }}
         >
-          {isFlipped && (
+          {(isFlipped && studyMode != 'mc') && (
             <>
               <Button
                 variant="ghost"
