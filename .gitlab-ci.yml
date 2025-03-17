@@ -4,7 +4,7 @@ stages:
 
 # Build stage to compile the Next.js application
 build:
-  image: node:16  # You can adjust the Node version if needed
+  image: node:23.7  # You can adjust the Node version if needed
   stage: build
   before_script:
     - cd sakura-flashcards
@@ -17,7 +17,7 @@ build:
 
 # Test stage to run Jest tests
 test:
-  image: node:16  # Make sure to use the same Node.js version as in the build stage
+  image: node:23.7  # Make sure to use the same Node.js version as in the build stage
   stage: test
   before_script:
     - npm install  # Install dependencies (ensure all dependencies are installed)
