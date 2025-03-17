@@ -30,12 +30,27 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [progressBar, setProgressBar] = useState(0);
   const [lastAction, setLastAction] = useState<'correct' | 'incorrect' | null>(null);
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
+  const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
+  const [isReviewMode, setIsReviewMode] = useState(false);
+  const [displayCards, setDisplayCards] = useState(
+    cardData.map((card, index) => ({ ...card, originalIndex: index }))
+  );
+  
+  
 
-  const total = cardData.length;
-  const currentCard = cardData[currentIndex];
+
+  const total = displayCards.length;
+  const currentCard = displayCards[currentIndex];  
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { progress, userId } = useContext(UserContext);
 
+  useEffect(() => {
+    if (!isReviewMode) {
+      setDisplayCards(cardData.map((card, index) => ({ ...card, originalIndex: index })));
+    }
+  }, [cardData, isReviewMode]);
+
+  
   useEffect(() => {
     setTimeout(() => {
       setCardBack(currentCard.backSide);
@@ -117,6 +132,18 @@ const handleResponse = async (isCorrect: boolean) => {
     return;
   }
 
+  const originalIndex = displayCards[currentIndex].originalIndex;
+
+  if (!isCorrect) {
+    setIncorrectIndices(prev => new Set([...prev, originalIndex]));
+  } else {
+    setIncorrectIndices(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(originalIndex);
+      return newSet;
+    });
+  }
+
   try {
     // 1. Construct document reference
     const studySet = index[0] === 0 ? "studySetI" : "studySetII";
@@ -154,9 +181,9 @@ const handleResponse = async (isCorrect: boolean) => {
     // 5. Update local state
     if (progress.length > 0) {
       const unitMap = progress[index[0]][index[1]][index[2]];
-      const currentCounts = unitMap.get(currentIndex) || { correct: 0, incorrect: 0 };
+      const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
       currentCounts[isCorrect ? "correct" : "incorrect"]++;
-      unitMap.set(currentIndex, currentCounts);
+      unitMap.set(originalIndex, currentCounts);
     }
 
     setIsFlipped(false);
@@ -166,6 +193,25 @@ const handleResponse = async (isCorrect: boolean) => {
     console.error("Update failed:", error);
   }
 };
+
+const handleReviewIncorrect = () => {
+  if (incorrectIndices.size === 0) {
+    alert('No incorrect cards to review!');
+    return;
+  }
+  
+  // Filter using original indices
+  const incorrectCards = cardData
+    .filter((_, index) => incorrectIndices.has(index))
+    .map((card, index) => ({ ...card, originalIndex: index }));
+  
+  setDisplayCards(incorrectCards);
+  setCurrentIndex(0);
+  setProgressBar(0);
+  setIsReviewMode(true);
+  setShowCompletionPopup(false);
+};
+
 
   useEffect(() => {
     if (lastAction) {
@@ -185,18 +231,18 @@ const handleResponse = async (isCorrect: boolean) => {
       <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
       <div className="flex justify-center gap-4">
         <Button 
-          onClick={() => console.log('Review clicked')}
+          onClick={handleReviewIncorrect}
           className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+          disabled={incorrectIndices.size === 0}
         >
-          <FaRedo className="mr-2" /> Review Incorrect
+          <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
         </Button>
         <Button 
           onClick={() => {
-            // Determine Genki version and lesson number
             const studySet = index[0] === 0 ? '1' : '2';
             const lessonNumber = index[0] === 0 
-              ? index[1] + 1  // Genki I lessons are 1-12
-              : index[1] + 13; // Genki II lessons start from 13
+              ? index[1] + 1
+              : index[1] + 13;
             router.push(`/studysets/genki-${studySet}`);
           }}
           className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
@@ -281,8 +327,8 @@ const handleResponse = async (isCorrect: boolean) => {
             <FaBackward className="size-6" />
           </Button>
           <div className="absolute">
-            {currentIndex + 1} / {cardData.length}
-          </div>
+  {currentIndex + 1} / {displayCards.length} {/* Changed from cardData.length to displayCards.length */}
+</div>
           <Button
             variant="ghost"
             size="lg"
