@@ -9,8 +9,9 @@ build:
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies
-  script:
     - npm run build  # Run the next build command to build your Next.js app
+  script:
+    - npm run dev
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
@@ -20,9 +21,10 @@ test:
   image: node:23.7  # Make sure to use the same Node.js version as in the build stage
   stage: test
   before_script:
+    - cd sakura-flashcards
     - npm install  # Install dependencies (ensure all dependencies are installed)
-  script:
     - npm run build  # Ensure the app is built before running tests
+  script:
     - npm run test   # Run Jest tests
   artifacts:
     paths:
