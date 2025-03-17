@@ -7,6 +7,7 @@ build:
   image: node:16  # You can adjust the Node version if needed
   stage: build
   before_script:
+    - cd sakura-flashcards
     - npm install  # Install dependencies
   script:
     - npm run build  # Run the next build command to build your Next.js app
