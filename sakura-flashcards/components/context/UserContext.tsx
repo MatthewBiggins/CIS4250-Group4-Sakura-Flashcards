@@ -9,6 +9,21 @@ interface AuthContext {
   setUserId: (name: string) => void;
 }
 
+function saveToLocalStorage(key: string, value: string): void {
+  if (typeof window !== "undefined" && window.localStorage) {
+    localStorage.setItem(key, value);
+  } else {
+    throw new Error("localStorage is not supported");
+  }
+}
+
+function getFromLocalStorage(key: string): string | null {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return localStorage.getItem(key);
+  }
+  return null;
+}
+
 const UserContext = createContext<AuthContext>({
   userName: "",
   setUser: () => {},
@@ -18,14 +33,24 @@ const UserContext = createContext<AuthContext>({
 
 // Get the username from the brower cache
 function getStoredUserName() {
-  const userName = localStorage.getItem("username");
-  return userName ? userName : "";
+  try {
+    const userName = getFromLocalStorage("username");
+    return userName ? userName : "";
+  } catch (error) {
+    console.error(error);
+    return "";
+  }
 }
 
 // Get the userId from the brower cache
 function getStoredUserId() {
-  const userId = localStorage.getItem("userId");
-  return userId ? userId : "";
+  try {
+    const userId = getFromLocalStorage("userId");
+    return userId ? userId : "";
+  } catch (error) {
+    console.error(error);
+    return "";
+  }
 }
 
 export function UserProvider({
@@ -38,11 +63,20 @@ export function UserProvider({
 
   // NOTE: save the username to the brower cache
   useEffect(() => {
-    localStorage.setItem("username", userName);
+    try {
+      saveToLocalStorage("username", userName);
+    } catch (error) {
+      console.error(error);
+    }
   }, [userName]);
 
   // NOTE: save the userId to the brower cache
   useEffect(() => {
+    try {
+      saveToLocalStorage("userId", userId);
+    } catch (error) {
+      console.error(error);
+    }
     localStorage.setItem("userId", userId);
   }, [userId]);
 
