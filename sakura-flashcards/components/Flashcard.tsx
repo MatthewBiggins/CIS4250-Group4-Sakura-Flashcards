@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaForward, FaBackward, FaCheck, FaTimes, FaRedo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
 import UserContext from "./UserContext";
@@ -12,8 +12,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  increment,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
 
@@ -28,6 +26,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressBar, setProgressBar] = useState(0);
   const [lastAction, setLastAction] = useState<'correct' | 'incorrect' | null>(null);
+  const [showCompletionPopup, setShowCompletionPopup] = useState(false);
+
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
@@ -39,6 +39,14 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }, 150);
   }, [currentIndex]);
 
+  useEffect(() => {
+    if (currentIndex === total - 1) {
+      setShowCompletionPopup(true);
+    } else {
+      setShowCompletionPopup(false);
+    }
+  }, [currentIndex, total]);  
+
   const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -48,17 +56,13 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   // Next card
   const handleNext = () => {
-    if (currentIndex === total - 2 || currentIndex > total - 2) {
-      setCurrentIndex(total - 1);
-      setProgressBar(100);
-    } else if (currentIndex < total - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setProgressBar((prev) => prev + 100 / (total - 1));
-    }
-    if (currentIndex !== total - 1) {
+    if (currentIndex < total - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setProgressBar(((prev) => prev + 100 / (total - 1)));
       setIsFlipped(false);
     }
   };
+  
 
   // Previous card
   const handleBack = () => {
@@ -167,8 +171,34 @@ const handleResponse = async (isCorrect: boolean) => {
     }
   }, [lastAction]);
 
+
+
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
+        {showCompletionPopup && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Lesson Complete!</h3>
+      <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
+      <div className="flex justify-center gap-4">
+        <Button 
+          onClick={() => console.log('Review clicked')}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+        >
+          <FaRedo className="mr-2" /> Review Incorrect
+        </Button>
+
+        <Button 
+          onClick={() => setShowCompletionPopup(false)}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+        >
+          Continue
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
+
       <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
@@ -265,3 +295,5 @@ const handleResponse = async (isCorrect: boolean) => {
     </div>
   );
 };
+
+export default Flashcard;
