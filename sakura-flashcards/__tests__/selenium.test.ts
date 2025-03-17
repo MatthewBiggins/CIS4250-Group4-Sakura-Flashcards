@@ -1,11 +1,14 @@
 import { Builder, By, Key, until } from 'selenium-webdriver';
 import * as chrome from 'selenium-webdriver/chrome';
 import 'chromedriver';
+import TestServer from './test-server';
 
+function wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
 async function runSeleniumTest() {
     const chromeOptions = new chrome.Options();
-    // chromeOptions.addArguments('--headless');
     chromeOptions.addArguments('--no-sandbox');
     chromeOptions.addArguments('--disable-dev-shm-usage');
 
@@ -17,20 +20,8 @@ async function runSeleniumTest() {
     try {
         console.log("Start test");
         // Navigate to Google
-        await driver.get('https://www.google.com');
-        console.log('Navigated to Google');
-
-        // Find the search box
-        const searchBox = await driver.findElement(By.name('q'));
-        
-        // Enter search term and submit
-        await searchBox.sendKeys('Selenium TypeScript Test', Key.RETURN);
-        console.log('Performed search');
-
-        // Wait for CAPTCHA
-        await driver.wait(until.elementLocated(By.id('captcha-form')), 10000);
-        console.log('CAPTCHA detected after search! Cannot proceed with automated testing.');
-
+        await driver.get('http://localhost:3000/');
+        await wait(3000);
     } catch (error) {
         console.error('An error occurred:', error);
         const pageSource = await driver.getPageSource();
@@ -41,8 +32,20 @@ async function runSeleniumTest() {
         console.log('Browser closed');
     }
 }
+
 describe('Selenium test', () => {
-    it('should handle async operations', async () => {
+    console.log(require("path"));
+    beforeAll(async () => {
+        await TestServer.start();
+    });
+
+    it('Load page', async () => {
       await runSeleniumTest();
-    }, 30000);
+    }, 20000);
+
+    afterAll(async () => {
+        await TestServer.stop();
+
+        
+    });
   });
