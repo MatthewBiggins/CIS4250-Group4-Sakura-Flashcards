@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useContext, useState, MouseEvent } from "react";
-import UserContext from "@/components/UserContext";
+import UserContext from "@/components/context/UserContext";
 import { genkiData } from "@/data";
 import Sidebar from "@/components/glossary/SideBar";
 

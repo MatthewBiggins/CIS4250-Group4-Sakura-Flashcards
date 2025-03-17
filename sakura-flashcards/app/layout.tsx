@@ -4,7 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
-import { UserProvider } from "@/components/UserContext";
+import { UserProvider } from "@/components/context/UserContext";
+import ThemeProvider from "@/components/theme";
 
 export const metadata: Metadata = {
   title: "Sakura Flashcards",
@@ -17,12 +18,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="en">
       <body className="font-sans">
+        <ThemeProvider />
         <div className="flex flex-col relative min-h-dvh">
           <UserProvider>
             <Header />
+            {/* Current Page */}
             <main className="flex-1 py-8">{children}</main>
             {/* Background Pattern */}
             <div className="fixed inset-0 w-full h-full -z-10 bg-pattern" />

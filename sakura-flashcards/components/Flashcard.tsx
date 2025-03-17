@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
-import UserContext from "./UserContext";
+import UserContext from "./context/UserContext";
 
 import {
   doc,
@@ -29,11 +29,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const total = cardData.length;
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
-  const { progress, userId } = useContext(UserContext);
+  const { userId } = useContext(UserContext);
   const searchParams = new URLSearchParams(document.location.search);
   const studyMode = searchParams.get('studymode');
   const [currentAnswer, setCurrentAnswer] = useState("")
-  const [answers, setAnswers] = useState(new Array<String>);
+  const [answers, setAnswers] = useState(new Array<String>());
+
+  // tailwind colours
+  const themeWrapper = document.querySelector(".dark, .light");
+  let rawCardColour;
+  if (themeWrapper) {
+    const themeStyles = getComputedStyle(themeWrapper);
+    rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
+  }
+  const cardColour = `hsl(${rawCardColour})`;
 
   const createAnswers = async () => {
     var values = [getWrongAnswer(), getWrongAnswer(), getWrongAnswer(), cardBack];
@@ -69,17 +78,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
     }
-    
-    if (progress.length != 0 && progress != undefined) {
-      progress[index[0]][index[1]][index[2]].set(currentIndex, true);
 
+    if (userId) {
       // Get units from current context
       let docRef;
       if (index[0] == 0) {
         docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
-      }else {
-        docRef = doc(db, "users", userId, "studySetII", `Lesson-${index[1] + 13}`)
-
+      } else {
+        docRef = doc(
+          db,
+          "users",
+          userId,
+          "studySetII",
+          `Lesson-${index[1] + 13}`
+        );
       }
 
       // Check that snapshot currently exists
@@ -127,13 +139,13 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case 'ArrowRight':     // Arrow right for next card
+        case "ArrowRight": // Arrow right for next card
           handleNext();
           break;
-        case 'ArrowLeft':      // Arrow left for previous card
+        case "ArrowLeft": // Arrow left for previous card
           handleBack();
           break;
-        case ' ':              // Space bar to flip
+        case " ": // Space bar to flip
           event.preventDefault();
           if (studyMode == 'mc') {
             handleMcConfirm();
@@ -141,32 +153,31 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             handleFlip();
           }
           break;
-        case '1':              // 1 key for Incorrect
+        case "1": // 1 key for Incorrect
           event.preventDefault();
           if (isFlipped) handleResponse(false);
           break;
-        case '2':              // 2 key for Correct
+        case "2": // 2 key for Correct
           event.preventDefault();
           if (isFlipped) handleResponse(true);
           break;
         default:
           break;
       }
-    };  
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-}, [currentIndex, isFlipped]);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, isFlipped]);
 
   const handleResponse = async (isCorrect: boolean) => {
     if (isCorrect) {
       // Update progress for correct answers
-      if (progress.length > 0 && userId) {
-        progress[index[0]][index[1]][index[2]].set(currentIndex, true);
-        
-        const docPath = index[0] === 0 
-          ? ["studySetI", `Lesson-${index[1]}`]
-          : ["studySetII", `Lesson-${index[1] + 13}`];
-        
+      if (userId) {
+        const docPath =
+          index[0] === 0
+            ? ["studySetI", `Lesson-${index[1]}`]
+            : ["studySetII", `Lesson-${index[1] + 13}`];
+
         const docRef = doc(db, "users", userId, ...docPath);
         const docSnapshot = await getDoc(docRef);
 
@@ -183,6 +194,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       handleNext();
     }
     setLastAction(isCorrect ? 'correct' : 'incorrect');
+
   };
 
   const handleMcConfirm = async () => {
@@ -205,24 +217,27 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
           animate={{ rotateX: isFlipped ? 180 : 360 }}
-          transition={{ duration: 0.1, type: 'tween' }}
+          transition={{ duration: 0.1, type: "tween" }}
           onAnimationComplete={() => setIsAnimating(false)}
         >
+          {/* Flashcard Front */}
           <motion.div
             className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: '#27272a' }}
+            initial={{ backgroundColor: cardColour }}
             animate={{
-              backgroundColor: lastAction === 'correct' 
-                ? 'rgba(34, 197, 94, 0.2)' 
-                : lastAction === 'incorrect' 
-                ? 'rgba(239, 68, 68, 0.2)' 
-                : '#27272a',
+              backgroundColor:
+                lastAction === "correct"
+                  ? "rgba(34, 197, 94, 0.2)"
+                  : lastAction === "incorrect"
+                  ? "rgba(239, 68, 68, 0.2)"
+                  : cardColour,
             }}
             transition={{ duration: 0.3 }}
           >
             <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
           </motion.div>
-          <div className="flip-card-back w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
+          {/* Flashcard Back */}
+          <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
@@ -252,13 +267,14 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         )}
       </div>
 
+      {/* Correct/Incorrect Buttons */}
       <div className="h-20">
         <motion.div
           className="flex gap-4 justify-center"
           initial={{ opacity: 0, y: -10 }}
-          animate={{ 
+          animate={{
             opacity: isFlipped ? 1 : 0,
-            y: isFlipped ? 0 : -10
+            y: isFlipped ? 0 : -10,
           }}
           transition={{ duration: 0.2 }}
         >
@@ -285,33 +301,38 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         </motion.div>
       </div>
 
+      {/* Flashcard Navigation Buttons */}
       <div className="w-full flex justify-center items-center font-semibold">
         <div className="relative flex justify-center items-center gap-28">
+          {/* Back Button */}
           <Button
             variant="ghost"
             size="lg"
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaBackward className="size-6" />
           </Button>
+          {/* Current Card Index */}
           <div className="absolute">
             {currentIndex + 1} / {cardData.length}
           </div>
+          {/* Next Button */}
           <Button
             variant="ghost"
             size="lg"
             onClick={handleNext}
             disabled={currentIndex === total - 1}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaForward className="size-6" />
           </Button>
         </div>
       </div>
 
-      <div className="bg-zinc-700 h-2 w-full rounded-2xl">
+      {/* Progress Bar */}
+      <div className="bg-lessonLink-hover h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
           style={{ width: `${progressBar}%` }}

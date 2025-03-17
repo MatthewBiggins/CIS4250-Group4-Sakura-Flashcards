@@ -7,67 +7,10 @@ import { Button } from "@/components/ui/button";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import db from "@/firebase/configuration";
 import { hash } from "@/utils/hash";
-import UserContext from "@/components/UserContext";
-import { TLessonProgress, TStudySetProgress, TUnitProgress } from "@/constants";
-
-// Used to retrieve the progress subcollections genkiSetI and genkiSetII from the firebase 
-// and load the data into the custom types genkiSet, lesson, and unit
-const getProgressFromFirebase = async (querySnapshot: any) => {
-
-  // get set 1
-  const setIRef = collection(querySnapshot.docs[0].ref, "studySetI");
-  const setISnapshot = await getDocs(setIRef);
-
-  // get set 2
-  const setIIRef = collection(querySnapshot.docs[0].ref, "studySetII");
-  const setIISnapshot = await getDocs(setIIRef);
-
-  let sets: TStudySetProgress[] = [];
-
-  // get lesson I data
-  let lessonsI: TLessonProgress[] = [];
-  for (let doc of setISnapshot.docs) {
-    let data = doc.data().units
-
-    // cast firebase javascript object to map
-    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
-      new Map<number, boolean>(
-        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
-      )
-    );
-    
-    lessonsI.push(unitMaps);
-
-  }
-
-  // get lesson II data
-  let lessonsII: TLessonProgress[] = [];
-  for (let doc of setIISnapshot.docs) {
-    let data = doc.data().units
-
-    // cast firebase javascript object to map
-    const unitMaps: Map<number, boolean>[] = data.map((unitObj: Record<string, boolean>) =>
-      new Map<number, boolean>(
-        Object.entries(unitObj).map(([key, value]) => [Number(key), value as boolean])
-      )
-    );
-
-    lessonsII.push(unitMaps);
-
-  }
-  
-  sets.push(lessonsI);
-  sets.push(lessonsII);
-
-  return sets;
-
-}
-
-
-
+import UserContext from "@/components/context/UserContext";
 
 const Login = () => {
-  // State to store form data and validation errors
+  // States to store form data and validation errors
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{
     email?: string;
@@ -75,7 +18,9 @@ const Login = () => {
     submit?: string;
   }>({});
 
+  // State to indicate the login data is currently being validated
   const [isValidating, setIsValidating] = useState(false);
+
   const router = useRouter();
   const auth = useContext(UserContext);
 
@@ -97,9 +42,6 @@ const Login = () => {
       const userDoc = querySnapshot.docs[0].data();
       const hashedPassword = await hash(data.password);
 
-      //get progress data
-      let progress = getProgressFromFirebase(querySnapshot);
-
       console.log("Entered hashed password:", hashedPassword);
 
       // Compare the hashed input password with the stored hashed password
@@ -109,10 +51,9 @@ const Login = () => {
 
       console.log(userDoc);
       auth.setUser(userDoc.username);
-      auth.setProgress(await progress);
       auth.setUserId(querySnapshot.docs[0].id);
 
-      // Navigate to home page
+      // Navigate to the progress dashboard
       router.push("/dashboard");
     } catch (error) {
       setErrors({ submit: (error as Error).message });
@@ -124,6 +65,7 @@ const Login = () => {
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // clear any previous errors for the input field
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -137,6 +79,7 @@ const Login = () => {
         className="flex flex-col items-center justify-center space-y-2"
       >
         <div className="text-right space-y-2">
+          {/* Email */}
           <div className="space-x-2">
             <label htmlFor="email">Email:</label>
             <input
@@ -153,6 +96,7 @@ const Login = () => {
             <p className="text-sm text-red-500">{errors.email}</p>
           )}
 
+          {/* Password */}
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
             <input
@@ -170,14 +114,17 @@ const Login = () => {
           )}
         </div>
 
+        {/* Submission Errors */}
         {errors.submit && (
           <p className="text-center text-sm text-red-500">{errors.submit}</p>
         )}
 
+        {/* Submit Button */}
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
         </Button>
 
+        {/* Create Account Link */}
         <p className="text-center text-sm">
           Don't have an account?{" "}
           <Link
