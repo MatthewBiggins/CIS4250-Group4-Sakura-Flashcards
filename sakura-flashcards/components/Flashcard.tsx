@@ -31,6 +31,15 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
 
+  // tailwind colours
+  const themeWrapper = document.querySelector(".dark, .light");
+  let rawCardColour;
+  if (themeWrapper) {
+    const themeStyles = getComputedStyle(themeWrapper);
+    rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
+  }
+  const cardColour = `hsl(${rawCardColour})`;
+
   useEffect(() => {
     setTimeout(() => {
       setCardBack(currentCard.backSide);
@@ -178,21 +187,21 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           {/* Flashcard Front */}
           <motion.div
             className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: "#27272a" }}
+            initial={{ backgroundColor: cardColour }}
             animate={{
               backgroundColor:
                 lastAction === "correct"
                   ? "rgba(34, 197, 94, 0.2)"
                   : lastAction === "incorrect"
                   ? "rgba(239, 68, 68, 0.2)"
-                  : "#27272a",
+                  : cardColour,
             }}
             transition={{ duration: 0.3 }}
           >
             <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
           </motion.div>
           {/* Flashcard Back */}
-          <div className="flip-card-back w-[100%] h-[100%] bg-zinc-800 rounded-lg p-4 flex justify-center items-center">
+          <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
@@ -241,7 +250,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             size="lg"
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaBackward className="size-6" />
           </Button>
@@ -255,7 +264,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             size="lg"
             onClick={handleNext}
             disabled={currentIndex === total - 1}
-            className="bg-zinc-900 hover:bg-zinc-800 text-neutral-400 hover:text-neutral-100 px-4 size-14 rounded-full"
+            className="bg-button hover:bg-button-hover text-neutral-100 hover:text-neutral-50 px-4 size-14 rounded-full"
           >
             <FaForward className="size-6" />
           </Button>
@@ -263,7 +272,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-zinc-700 h-2 w-full rounded-2xl">
+      <div className="bg-lessonLink-hover h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
           style={{ width: `${progressBar}%` }}

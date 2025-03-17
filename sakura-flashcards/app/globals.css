@@ -17,6 +17,8 @@ body,
 
 @layer base {
   :root {
+
+    /* button tailwind css */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
@@ -46,9 +48,21 @@ body,
     --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
+
+
+    /* page tailwind css variables */
+    --globalBackground: 0, 0%, 0%;
+
+    --textColour: 0, 0%, 90%; /* neutral 200 */
+    /* background colour for lesson links */
+    --lessonLink: 240, 6%, 10%; /* zinc 900 */
+    --lessonLink-hover: 240, 4%, 16%; /* zinc 800 */
+    /* colour for lesson links and header */
+    --lessonColour: 0, 0%, 90%; /* neutral 200 */
   }
 
   .dark {
+    /* button tailwind css */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -76,6 +90,64 @@ body,
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+
+    /* page tailwind css variables */
+    --globalBackground: 0, 0%, 0%;
+
+    --textColour: 0, 0%, 90%; /* neutral 200 */
+    /* background colour for lesson links */
+    --lessonLink: 240, 6%, 10%; /* zinc 900 */
+    --lessonLink-hover: 240, 4%, 16%; /* zinc 800 */
+    /* colour for lesson links and header */
+    --lessonColour: 0, 0%, 90%; /* neutral 200 */
+
+    --button: 240, 4%, 16%;
+    --button-hover: 240, 5%, 26%;
+  }
+
+  .light {
+    /* button tailwind css */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    /* page tailwind css variables */
+    --globalBackground: 0, 0%, 100%; /* white */
+
+    --textColour: 0, 0%, 4%; /* neutral 950 */
+    /* background colour for lesson links */
+    --lessonLink: 240, 5%, 65%; /* zinc 400 */
+    --lessonLink-hover: 240, 5%, 84%; /* zinc 300 NOTE: this is also used for the flashcards*/ 
+    /* colour for lesson links and header */
+    /*--lessonColour: 0, 0%, 90%; /* neutral 200 */
+    --lessonColour: 0, 0%, 4%; /* neutral 200 */
+
+    --button: 240, 5%, 84%;
+    --button-hover: 240, 6%, 90%;
   }
 }
 
@@ -84,7 +156,7 @@ body,
     @apply border-border;
   }
   body {
-    @apply bg-black text-neutral-200 font-sans;
+    @apply bg-globalBackground text-textColour font-sans;
   }
 
   .custom-transition {
