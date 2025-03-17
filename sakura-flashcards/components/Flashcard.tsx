@@ -24,6 +24,8 @@ type FlashcardProps = {
 const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const router = useRouter();
 
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,6 +34,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
   const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [answeredIndices, setAnsweredIndices] = useState<Set<number>>(new Set());
   const [displayCards, setDisplayCards] = useState(
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
@@ -58,12 +61,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }, [currentIndex]);
 
   useEffect(() => {
-    if (currentIndex === total - 1) {
-      setShowCompletionPopup(true);
-    } else {
-      setShowCompletionPopup(false);
-    }
-  }, [currentIndex, total]);  
+    const shouldShowPopup = currentIndex === total - 1 && answeredIndices.has(currentIndex);
+    setShowCompletionPopup(shouldShowPopup);
+  }, [currentIndex, total, answeredIndices]);
+  
 
   const handleFlip = async () => {
     if (!isAnimating) {
@@ -144,6 +145,18 @@ const handleResponse = async (isCorrect: boolean) => {
     });
   }
 
+  if (isCorrect) {
+    setCorrectCount(prev => prev + 1);
+  } else {
+    setIncorrectCount(prev => prev + 1);
+  }
+
+  setAnsweredIndices(prev => {
+    const newSet = new Set(prev);
+    newSet.add(currentIndex);
+    return newSet;
+  });
+  
   try {
     // 1. Construct document reference
     const studySet = index[0] === 0 ? "studySetI" : "studySetII";
@@ -228,31 +241,57 @@ const handleReviewIncorrect = () => {
   <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
     <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
       <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Lesson Complete!</h3>
-      <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
-      <div className="flex justify-center gap-4">
-        <Button 
-          onClick={handleReviewIncorrect}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-          disabled={incorrectIndices.size === 0}
-        >
-          <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
-        </Button>
-        <Button 
-          onClick={() => {
-            const studySet = index[0] === 0 ? '1' : '2';
-            const lessonNumber = index[0] === 0 
-              ? index[1] + 1
-              : index[1] + 13;
-            router.push(`/studysets/genki-${studySet}`);
-          }}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-        >
-          Continue
-        </Button>
+      <div className="mb-4">
+        <p className="text-lg text-green-500">Correct: {correctCount}</p>
+        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
       </div>
+      
+      {incorrectIndices.size > 0 ? (
+        <>
+          <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
+          <div className="flex justify-center gap-4">
+            <Button 
+              onClick={handleReviewIncorrect}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+            >
+              <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
+            </Button>
+            <Button 
+              onClick={() => {
+                const studySet = index[0] === 0 ? '1' : '2';
+                const lessonNumber = index[0] === 0 
+                  ? index[1] + 1
+                  : index[1] + 13;
+                router.push(`/studysets/genki-${studySet}`);
+              }}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+            >
+              Continue
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
+          <Button 
+            onClick={() => {
+              const studySet = index[0] === 0 ? '1' : '2';
+              const lessonNumber = index[0] === 0 
+                ? index[1] + 1
+                : index[1] + 13;
+              router.push(`/studysets/genki-${studySet}`);
+            }}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+          >
+            Continue
+          </Button>
+        </>
+      )}
     </div>
   </div>
 )}
+
+
 
       <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={handleFlip}>
         <motion.div
