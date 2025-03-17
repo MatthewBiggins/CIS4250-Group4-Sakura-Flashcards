@@ -36,7 +36,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [answers, setAnswers] = useState(new Array<String>);
 
   const createAnswers = async () => {
-    var values = ["Wrong Answer 1", "Wrong Answer 2", "Wrong Answer 3", cardBack];
+    var values = [getWrongAnswer(), getWrongAnswer(), getWrongAnswer(), cardBack];
     for (var i = 0; i < values.length * 3; i++) {
       var index1 = Math.floor(Math.random() * values.length); // Generate random indexes
       var index2 = Math.floor(Math.random() * values.length);
@@ -46,6 +46,13 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       values[index2] = temp;
     }
     setAnswers(values);
+  }
+  function getWrongAnswer() {
+    var index;
+    do {
+      index = Math.floor(Math.random() * cardData.length);
+    } while (index == currentIndex);
+    return cardData[index].backSide;
   }
   useEffect(()=>{
     createAnswers();
