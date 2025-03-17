@@ -30,7 +30,8 @@ const TestServer = {
   async stop() {
     await this.server?.close();
     console.log('Server stopped');
-    await TestServer.app?.close();
+    await this.app?.close();
+    console.log('App closed');
   },
 
   async test(){
