@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useContext } from "react";
 import UserContext from "./UserContext";
 import { TCardProgress } from "@/constants";
+import { useRouter } from "next/navigation";
 
 import {
   doc,
@@ -21,6 +22,8 @@ type FlashcardProps = {
 };
 
 const Flashcard = ({ cardData, index }: FlashcardProps) => {
+  const router = useRouter();
+
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -187,9 +190,15 @@ const handleResponse = async (isCorrect: boolean) => {
         >
           <FaRedo className="mr-2" /> Review Incorrect
         </Button>
-
         <Button 
-          onClick={() => setShowCompletionPopup(false)}
+          onClick={() => {
+            // Determine Genki version and lesson number
+            const studySet = index[0] === 0 ? '1' : '2';
+            const lessonNumber = index[0] === 0 
+              ? index[1] + 1  // Genki I lessons are 1-12
+              : index[1] + 13; // Genki II lessons start from 13
+            router.push(`/studysets/genki-${studySet}`);
+          }}
           className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
         >
           Continue
