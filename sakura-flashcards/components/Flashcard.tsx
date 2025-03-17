@@ -6,6 +6,7 @@ import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
 import UserContext from "./UserContext";
+import { TCardProgress } from "@/constants";
 
 import {
   doc,
@@ -264,6 +265,3 @@ const handleResponse = async (isCorrect: boolean) => {
     </div>
   );
 };
-
-
-export default Flashcard;
