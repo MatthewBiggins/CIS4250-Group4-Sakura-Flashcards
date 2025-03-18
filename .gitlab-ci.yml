@@ -15,6 +15,7 @@ build:
     - webdriver-manager update
   script:
     - npm run build
+    - npm run test
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
@@ -27,6 +28,7 @@ test:
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies
+    - npm install -g webdriver-manager
     - webdriver-manager update
   script:
     - npm run test   # Run Jest tests
