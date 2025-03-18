@@ -4,11 +4,9 @@ stages:
 
 # Build stage to compile the Next.js application
 build:
-  image: selenium/standalone-chrome  # You can adjust the Node version if needed
+  image: selenium/node-chrome  # You can adjust the Node version if needed
   stage: build
-  before_script: 
-    - sudo apt install -f nodejs
-    - sudo apt install -f npm
+  before_script:
     - cd sakura-flashcards
     - npm install
   script:
@@ -20,7 +18,7 @@ build:
 
 # Test stage to run Jest tests
 test:
-  image: selenium/standalone-chrome  # Make sure to use the same Node.js version as in the build stage
+  image: selenium/node-chrome  # Make sure to use the same Node.js version as in the build stage
   stage: test
   before_script:
     - cd sakura-flashcards
