@@ -6,13 +6,9 @@ stages:
 build:
   image: node:23.7  # You can adjust the Node version if needed
   stage: build
-  variables:
-      CHROME_BIN: "/usr/local/bin/chromedriver" 
   before_script: 
     - cd sakura-flashcards
     - npm install  # Install dependencies
-    - npm install -g webdriver-manager
-    - webdriver-manager update
   script:
     - npm run build
     - npm run test
@@ -32,9 +28,6 @@ test:
     - webdriver-manager update
   script:
     - npm run test   # Run Jest tests
-  artifacts:
-    paths:
-      - coverage/  # Optionally store coverage results if needed
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds

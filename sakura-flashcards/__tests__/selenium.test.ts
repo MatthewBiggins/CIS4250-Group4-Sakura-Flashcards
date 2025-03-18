@@ -1,13 +1,5 @@
-import { Builder, By, Key, until, WebDriver } from 'selenium-webdriver';
-import * as chrome from 'selenium-webdriver/chrome';
-import 'chromedriver';
+import {Browser, Builder, WebDriver} from 'selenium-webdriver';
 import TestServer from './test-server';
-
-const chromeOptions = new chrome.Options();
-chromeOptions.addArguments('--no-sandbox');
-chromeOptions.addArguments('--headless');
-chromeOptions.addArguments('--disable-dev-shm-usage');
-
 
 function wait(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -17,9 +9,8 @@ describe('Selenium test', () => {
     var driver: WebDriver;
     beforeEach(async () => {
         driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(chromeOptions)
-            .build();
+                        .forBrowser(Browser.FIREFOX)
+                        .build();
     });
 
     beforeAll(async () => {
