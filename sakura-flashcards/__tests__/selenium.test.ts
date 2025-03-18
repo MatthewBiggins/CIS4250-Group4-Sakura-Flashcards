@@ -9,8 +9,10 @@ describe('Selenium test', () => {
     var driver: WebDriver;
     beforeEach(async () => {
         driver = await new Builder()
-                        .forBrowser(Browser.FIREFOX)
+                        .forBrowser(Browser.CHROME)
                         .build();
+        console.log("DRIVER");
+        console.log(driver.getExecutor);
     });
 
     beforeAll(async () => {
