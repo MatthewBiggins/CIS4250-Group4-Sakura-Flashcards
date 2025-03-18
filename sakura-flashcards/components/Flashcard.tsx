@@ -35,6 +35,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [answeredIndices, setAnsweredIndices] = useState<Set<number>>(new Set());
+  const [showReviewCompletionPopup, setShowReviewCompletionPopup] = useState(false);
   const [displayCards, setDisplayCards] = useState(
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
@@ -61,9 +62,15 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }, [currentIndex]);
 
   useEffect(() => {
-    const shouldShowPopup = currentIndex === total - 1 && answeredIndices.has(currentIndex);
-    setShowCompletionPopup(shouldShowPopup);
-  }, [currentIndex, total, answeredIndices]);
+    if (isReviewMode) {
+      const shouldShow = currentIndex === total - 1 && answeredIndices.has(currentIndex);
+      setShowReviewCompletionPopup(shouldShow);
+    } else {
+      const shouldShow = currentIndex === total - 1 && answeredIndices.has(currentIndex);
+      setShowCompletionPopup(shouldShow);
+    }
+  }, [currentIndex, total, answeredIndices, isReviewMode]);
+  
   
 
   const handleFlip = async () => {
@@ -136,7 +143,12 @@ const handleResponse = async (isCorrect: boolean) => {
   const originalIndex = displayCards[currentIndex].originalIndex;
 
   if (!isCorrect) {
-    setIncorrectIndices(prev => new Set([...prev, originalIndex]));
+    setIncorrectIndices(prev => {
+      const newSet = new Set(prev);
+      newSet.add(originalIndex);
+      return newSet;
+    });
+    
   } else {
     setIncorrectIndices(prev => {
       const newSet = new Set(prev);
@@ -156,8 +168,14 @@ const handleResponse = async (isCorrect: boolean) => {
     newSet.add(currentIndex);
     return newSet;
   });
+
+  // Always update UI and progress
+  setIsFlipped(false);
+  handleNext();
+  setLastAction(isCorrect ? 'correct' : 'incorrect');
+
   
-  try {
+  if (!isReviewMode) try {
     // 1. Construct document reference
     const studySet = index[0] === 0 ? "studySetI" : "studySetII";
     const lessonNumber = index[0] === 0 ? index[1] : index[1] + 13;
@@ -198,10 +216,6 @@ const handleResponse = async (isCorrect: boolean) => {
       currentCounts[isCorrect ? "correct" : "incorrect"]++;
       unitMap.set(originalIndex, currentCounts);
     }
-
-    setIsFlipped(false);
-    handleNext();
-    setLastAction(isCorrect ? 'correct' : 'incorrect');
   } catch (error) {
     console.error("Update failed:", error);
   }
@@ -213,7 +227,6 @@ const handleReviewIncorrect = () => {
     return;
   }
   
-  // Filter using original indices
   const incorrectCards = cardData
     .filter((_, index) => incorrectIndices.has(index))
     .map((card, index) => ({ ...card, originalIndex: index }));
@@ -223,6 +236,10 @@ const handleReviewIncorrect = () => {
   setProgressBar(0);
   setIsReviewMode(true);
   setShowCompletionPopup(false);
+  // Reset counts for review session
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setAnsweredIndices(new Set());
 };
 
 
@@ -237,6 +254,31 @@ const handleReviewIncorrect = () => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
+
+{showReviewCompletionPopup && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Review Complete!</h3>
+      <div className="mb-4">
+        <p className="text-lg text-green-500">Correct: {correctCount}</p>
+        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
+      </div>
+      <Button 
+        onClick={() => {
+          const studySet = index[0] === 0 ? '1' : '2';
+          const lessonNumber = index[0] === 0 
+            ? index[1] + 1
+            : index[1] + 13;
+          router.push(`/studysets/genki-${studySet}`);
+        }}
+        className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 w-full"
+      >
+        Return to Study Set
+      </Button>
+    </div>
+  </div>
+)}
+
         {showCompletionPopup && (
   <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
     <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">

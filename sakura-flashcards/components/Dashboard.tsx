@@ -9,13 +9,16 @@ import { TStudySetProgress } from "@/constants";
 
 // TODO: remove test data
 function generateTestData() {
-  let testProgress: TStudySetProgress[] = genkiData.map((studySet) => {
+  const testProgress: TStudySetProgress[] = genkiData.map((studySet) => {
     return studySet.data.map((lesson) => {
       return lesson.units.map((unit) => {
-        const data = new Map();
+        const data = new Map<number, { correct: number; incorrect: number }>();
 
         unit.items.forEach((_, i) => {
-          data.set(i, i % 3 == 0);
+          data.set(i, {
+            correct: Math.floor(Math.random() * 5),  // Random correct answers 0-4
+            incorrect: Math.floor(Math.random() * 3) // Random incorrect answers 0-2
+          });
         });
 
         return data;
@@ -25,6 +28,7 @@ function generateTestData() {
 
   return testProgress;
 }
+
 const testProgress = generateTestData();
 
 export default function Dashboard() {
