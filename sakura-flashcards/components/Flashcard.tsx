@@ -107,7 +107,11 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   }, [currentIndex, total, answeredIndices, isReviewMode]);
   
-  
+  const handleMcConfirm = async () => {
+    setIsFlipped(true);
+    handleResponse(currentAnswer == cardBack);
+    setCurrentAnswer("");
+  };
 
   const handleFlip = async () => {
     if (!isAnimating) {
@@ -250,12 +254,12 @@ const handleResponse = async (isCorrect: boolean) => {
     }, { merge: true });
 
     // 5. Update local state
-    if (progress.length > 0) {
-      const unitMap = progress[index[0]][index[1]][index[2]];
-      const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
-      currentCounts[isCorrect ? "correct" : "incorrect"]++;
-      unitMap.set(originalIndex, currentCounts);
-    }
+    // if (progress.length > 0) {
+    //   const unitMap = progress[index[0]][index[1]][index[2]];
+    //   const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
+    //   currentCounts[isCorrect ? "correct" : "incorrect"]++;
+    //   unitMap.set(originalIndex, currentCounts);
+    // }
   } catch (error) {
     console.error("Update failed:", error);
   }
