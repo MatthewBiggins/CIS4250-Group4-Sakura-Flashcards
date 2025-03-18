@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaForward, FaBackward, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaForward, FaBackward, FaCheck, FaTimes, FaRedo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
-import UserContext from "./context/UserContext";
+import UserContext from "@/components/context/UserContext";
+import { TCardProgress } from "@/constants";
+import { useRouter } from "next/navigation";
 
 import {
   doc,
-  setDoc,
   getDoc,
-  updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
 import Link from 'next/link';
@@ -22,13 +23,29 @@ type FlashcardProps = {
 };
 
 const Flashcard = ({ cardData, index }: FlashcardProps) => {
+  const router = useRouter();
+
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressBar, setProgressBar] = useState(0);
   const [lastAction, setLastAction] = useState<'correct' | 'incorrect' | null>(null);
-  const total = cardData.length;
-  const currentCard = cardData[currentIndex];
+  const [showCompletionPopup, setShowCompletionPopup] = useState(false);
+  const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
+  const [isReviewMode, setIsReviewMode] = useState(false);
+  const [answeredIndices, setAnsweredIndices] = useState<Set<number>>(new Set());
+  const [showReviewCompletionPopup, setShowReviewCompletionPopup] = useState(false);
+  const [displayCards, setDisplayCards] = useState(
+    cardData.map((card, index) => ({ ...card, originalIndex: index }))
+  );
+  
+  
+
+
+  const total = displayCards.length;
+  const currentCard = displayCards[currentIndex];  
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
   const [studyMode, setStudyMode] = useState('studymode');
@@ -68,58 +85,50 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }, [cardBack])
 
   useEffect(() => {
+    if (!isReviewMode) {
+      setDisplayCards(cardData.map((card, index) => ({ ...card, originalIndex: index })));
+    }
+  }, [cardData, isReviewMode]);
+
+  
+  useEffect(() => {
     setTimeout(() => {
       setCardBack(currentCard.backSide);
     }, 150);
   }, [currentIndex]);
+
+  useEffect(() => {
+    if (isReviewMode) {
+      const shouldShow = currentIndex === total - 1 && answeredIndices.has(currentIndex);
+      setShowReviewCompletionPopup(shouldShow);
+    } else {
+      const shouldShow = currentIndex === total - 1 && answeredIndices.has(currentIndex);
+      setShowCompletionPopup(shouldShow);
+    }
+  }, [currentIndex, total, answeredIndices, isReviewMode]);
+  
+  const handleMcConfirm = async () => {
+    setIsFlipped(true);
+    handleResponse(currentAnswer == cardBack);
+    setCurrentAnswer("");
+  };
 
   const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
       setIsFlipped((prev) => !prev);
     }
-
-    if (userId) {
-      // Get units from current context
-      let docRef;
-      if (index[0] == 0) {
-        docRef = doc(db, "users", userId, "studySetI", `Lesson-${index[1]}`);
-      } else {
-        docRef = doc(
-          db,
-          "users",
-          userId,
-          "studySetII",
-          `Lesson-${index[1] + 13}`
-        );
-      }
-
-      // Check that snapshot currently exists
-      const docSnapshot = await getDoc(docRef);
-      if (docSnapshot.exists()) {
-        // Make an update to the database
-        const units = docSnapshot.data().units;
-        units[index[2]][currentIndex] = true;
-        await updateDoc(docRef, {
-          units: units,
-        });
-      }
-    }
   };
 
   // Next card
   const handleNext = () => {
-    if (currentIndex === total - 2 || currentIndex > total - 2) {
-      setCurrentIndex(total - 1);
-      setProgressBar(100);
-    } else if (currentIndex < total - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setProgressBar((prev) => prev + 100 / (total - 1));
-    }
-    if (currentIndex !== total - 1) {
+    if (currentIndex < total - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setProgressBar(((prev) => prev + 100 / (total - 1)));
       setIsFlipped(false);
     }
   };
+  
 
   // Previous card
   const handleBack = () => {
@@ -169,39 +178,114 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, isFlipped]);
 
-  const handleResponse = async (isCorrect: boolean) => {
-    if (isCorrect) {
-      // Update progress for correct answers
-      if (userId) {
-        const docPath =
-          index[0] === 0
-            ? ["studySetI", `Lesson-${index[1]}`]
-            : ["studySetII", `Lesson-${index[1] + 13}`];
+const handleResponse = async (isCorrect: boolean) => {
+  if (!userId) {
+    console.error("User not authenticated");
+    return;
+  }
 
-        const docRef = doc(db, "users", userId, ...docPath);
-        const docSnapshot = await getDoc(docRef);
+  const originalIndex = displayCards[currentIndex].originalIndex;
 
-        if (docSnapshot.exists()) {
-          const units = docSnapshot.data().units;
-          units[index[2]][currentIndex] = true;
-          await updateDoc(docRef, { units });
-        }
-      }
-    }
+  if (!isCorrect) {
+    setIncorrectIndices(prev => {
+      const newSet = new Set(prev);
+      newSet.add(originalIndex);
+      return newSet;
+    });
     
-    if (studyMode != 'mc') {
-      setIsFlipped(false);
-      handleNext();
+  } else {
+    setIncorrectIndices(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(originalIndex);
+      return newSet;
+    });
+  }
+
+  if (isCorrect) {
+    setCorrectCount(prev => prev + 1);
+  } else {
+    setIncorrectCount(prev => prev + 1);
+  }
+
+  setAnsweredIndices(prev => {
+    const newSet = new Set(prev);
+    newSet.add(currentIndex);
+    return newSet;
+  });
+
+  // Always update UI and progress
+  setIsFlipped(false);
+  handleNext();
+  setLastAction(isCorrect ? 'correct' : 'incorrect');
+
+  
+  if (!isReviewMode) try {
+    // 1. Construct document reference
+    const studySet = index[0] === 0 ? "studySetI" : "studySetII";
+    const lessonNumber = index[0] === 0 ? index[1] : index[1] + 13;
+    const docRef = doc(db, "users", userId, studySet, `Lesson-${lessonNumber}`);
+
+    // 2. Get current document data
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Document does not exist");
     }
-    setLastAction(isCorrect ? 'correct' : 'incorrect');
 
-  };
+    // 3. Verify and maintain structure
+    const currentData = docSnap.data();
+    const updatedUnits = currentData.units.map((unit: any, unitIndex: number) => {
+      if (unitIndex !== index[2]) return unit;
+      
+      // Clone the cards array to avoid mutation
+      const cards = unit.cards?.map((card: TCardProgress, cardIndex: number) => {
+        if (cardIndex !== currentIndex) return card;
+        return {
+          correct: isCorrect ? card.correct + 1 : card.correct,
+          incorrect: !isCorrect ? card.incorrect + 1 : card.incorrect
+        };
+      }) || [];
+      
+      return { ...unit, cards };
+    });
 
-  const handleMcConfirm = async () => {
-    setIsFlipped(true);
-    handleResponse(currentAnswer == cardBack);
-    setCurrentAnswer("");
-  };
+    // 4. Update the entire document with merged data
+    await setDoc(docRef, {
+      units: updatedUnits
+    }, { merge: true });
+
+    // 5. Update local state
+    // if (progress.length > 0) {
+    //   const unitMap = progress[index[0]][index[1]][index[2]];
+    //   const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
+    //   currentCounts[isCorrect ? "correct" : "incorrect"]++;
+    //   unitMap.set(originalIndex, currentCounts);
+    // }
+  } catch (error) {
+    console.error("Update failed:", error);
+  }
+};
+
+const handleReviewIncorrect = () => {
+  if (incorrectIndices.size === 0) {
+    alert('No incorrect cards to review!');
+    return;
+  }
+  
+  const incorrectCards = cardData
+    .filter((_, index) => incorrectIndices.has(index))
+    .map((card, index) => ({ ...card, originalIndex: index }));
+  
+  setDisplayCards(incorrectCards);
+  setCurrentIndex(0);
+  setProgressBar(0);
+  setIsReviewMode(true);
+  setShowCompletionPopup(false);
+  // Reset counts for review session
+  setCorrectCount(0);
+  setIncorrectCount(0);
+  setAnsweredIndices(new Set());
+};
+
 
   useEffect(() => {
     if (lastAction) {
@@ -210,9 +294,90 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   }, [lastAction]);
 
+
+
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode != 'mc') {handleFlip()}}}>
+
+{showReviewCompletionPopup && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Review Complete!</h3>
+      <div className="mb-4">
+        <p className="text-lg text-green-500">Correct: {correctCount}</p>
+        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
+      </div>
+      <Button 
+        onClick={() => {
+          const studySet = index[0] === 0 ? '1' : '2';
+          const lessonNumber = index[0] === 0 
+            ? index[1] + 1
+            : index[1] + 13;
+          router.push(`/studysets/genki-${studySet}`);
+        }}
+        className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 w-full"
+      >
+        Return to Study Set
+      </Button>
+    </div>
+  </div>
+)}
+
+        {showCompletionPopup && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Lesson Complete!</h3>
+      <div className="mb-4">
+        <p className="text-lg text-green-500">Correct: {correctCount}</p>
+        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
+      </div>
+      
+      {incorrectIndices.size > 0 ? (
+        <>
+          <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
+          <div className="flex justify-center gap-4">
+            <Button 
+              onClick={handleReviewIncorrect}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+            >
+              <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
+            </Button>
+            <Button 
+              onClick={() => {
+                const studySet = index[0] === 0 ? '1' : '2';
+                const lessonNumber = index[0] === 0 
+                  ? index[1] + 1
+                  : index[1] + 13;
+                router.push(`/studysets/genki-${studySet}`);
+              }}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+            >
+              Continue
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
+          <Button 
+            onClick={() => {
+              const studySet = index[0] === 0 ? '1' : '2';
+              const lessonNumber = index[0] === 0 
+                ? index[1] + 1
+                : index[1] + 13;
+              router.push(`/studysets/genki-${studySet}`);
+            }}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+          >
+            Continue
+          </Button>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
@@ -316,8 +481,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           </Button>
           {/* Current Card Index */}
           <div className="absolute">
-            {currentIndex + 1} / {cardData.length}
-          </div>
+  {currentIndex + 1} / {displayCards.length} {/* Changed from cardData.length to displayCards.length */}
+</div>
           {/* Next Button */}
           <Button
             variant="ghost"
@@ -357,6 +522,5 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     </div>
   );
 };
-
 
 export default Flashcard;
