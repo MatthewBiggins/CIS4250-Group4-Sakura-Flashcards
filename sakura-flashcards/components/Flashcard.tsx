@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FaForward, FaBackward, FaCheck, FaTimes, FaRedo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { useContext } from "react";
-import UserContext from "./UserContext";
+import UserContext from "@/components/context/UserContext";
 import { TCardProgress } from "@/constants";
 import { useRouter } from "next/navigation";
 
