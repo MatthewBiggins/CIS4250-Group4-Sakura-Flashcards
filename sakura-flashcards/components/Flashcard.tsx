@@ -15,6 +15,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
+import Link from 'next/link';
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
@@ -47,9 +48,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const currentCard = displayCards[currentIndex];  
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
-  const searchParams = new URLSearchParams(document.location.search);
-  const studyMode = searchParams.get('studymode');
-  const [currentAnswer, setCurrentAnswer] = useState("")
+  const [studyMode, setStudyMode] = useState('studymode');
+  const [currentAnswer, setCurrentAnswer] = useState("classic")
   const [answers, setAnswers] = useState(new Array<String>());
 
   // tailwind colours
@@ -373,8 +373,6 @@ const handleReviewIncorrect = () => {
   </div>
 )}
 
-
-
       <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
@@ -501,6 +499,22 @@ const handleReviewIncorrect = () => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
+
+      {/* Study Mode Toggle */}
+      {studyMode != "mc" && 
+        <Button
+          onClick={() => {setStudyMode("mc")}}
+        >
+          Switch To Multiple Choice Mode
+        </Button>
+      }
+      {studyMode == "mc" && 
+        <Button
+          onClick={() => {setStudyMode("classic")}}
+        >
+          Switch Back To Classic Mode
+        </Button>
+      }
     </div>
   );
 };
