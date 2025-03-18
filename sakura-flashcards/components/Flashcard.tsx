@@ -31,9 +31,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const currentCard = cardData[currentIndex];
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
-  const searchParams = new URLSearchParams(document.location.search);
-  const studyMode = searchParams.get('studymode');
-  const [currentAnswer, setCurrentAnswer] = useState("")
+  const [studyMode, setStudyMode] = useState('studymode');
+  const [currentAnswer, setCurrentAnswer] = useState("classic")
   const [answers, setAnswers] = useState(new Array<String>());
 
   // tailwind colours
@@ -342,20 +341,18 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
       {/* Study Mode Toggle */}
       {studyMode != "mc" && 
-        <Link
-          href={window.location.pathname.split('?')[0] + "?studymode=mc"}
-          onClick={() => {window.location.reload()}}
+        <Button
+          onClick={() => {setStudyMode("mc")}}
         >
           Switch To Multiple Choice Mode
-        </Link>
+        </Button>
       }
       {studyMode == "mc" && 
-        <Link
-          href={window.location.pathname.split('?')[0]}
-          onClick={() => {window.location.reload()}}
+        <Button
+          onClick={() => {setStudyMode("classic")}}
         >
           Switch Back To Classic Mode
-        </Link>
+        </Button>
       }
     </div>
   );
