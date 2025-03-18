@@ -7,8 +7,8 @@ build:
   image: selenium/standalone-chrome  # You can adjust the Node version if needed
   stage: build
   before_script: 
-    - apt install nodejs
-    - apt install npm
+    - sudo apt install -f nodejs
+    - sudo apt install -f npm
     - cd sakura-flashcards
     - npm install
   script:
