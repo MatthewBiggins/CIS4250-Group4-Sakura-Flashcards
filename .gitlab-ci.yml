@@ -11,13 +11,9 @@ build:
     - npm install  # Install dependencies
     - apt-get update && apt-get install -y wget curl unzip  # Install any necessary tools
     - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chrome-headless-shell-linux64.zip  # Download Chrome
-    - unzip chrome-headless-shell-linux64.zip -d chrome-headless-shell-linux64
-    - dpkg -i chrome-headless-shell-linux64/chrome-headless-shell.deb  # Install Chrome
-    - apt-get -f install  # Install any missing dependencies for Chrome
-    - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chromedriver-linux64.zip  # Download the appropriate version of ChromeDriver (ensure version matches Chrome)
-    - unzip chromedriver_linux64.zip  # Unzip ChromeDriver
-    - mv chromedriver /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
-    - chmod +x /usr/local/bin/chromedriver
+    - unzip chrome-headless-shell-linux64.zip  # Unzip ChromeDriver
+    - mv chrome-headless-shell /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
+    - chmod +x /usr/local/bin/chrome-headless-shell
   script:
     - npm run build
   cache:
