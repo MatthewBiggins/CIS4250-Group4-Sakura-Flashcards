@@ -13,7 +13,7 @@ describe('Selenium test', () => {
                         .build();
         console.log("DRIVER");
         console.log(driver.getExecutor);
-    });
+    }, 30000);
 
     beforeAll(async () => {
         await TestServer.start();
