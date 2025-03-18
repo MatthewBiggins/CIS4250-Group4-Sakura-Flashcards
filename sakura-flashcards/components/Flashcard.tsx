@@ -14,6 +14,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
+import Link from 'next/link';
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
@@ -212,7 +213,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode != 'mc') {handleFlip()}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
@@ -338,6 +339,24 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
+
+      {/* Study Mode Toggle */}
+      {studyMode != "mc" && 
+        <Link
+          href={window.location.pathname.split('?')[0] + "?studymode=mc"}
+          onClick={() => {window.location.reload()}}
+        >
+          Switch To Multiple Choice Mode
+        </Link>
+      }
+      {studyMode == "mc" && 
+        <Link
+          href={window.location.pathname.split('?')[0]}
+          onClick={() => {window.location.reload()}}
+        >
+          Switch Back To Classic Mode
+        </Link>
+      }
     </div>
   );
 };
