@@ -9,9 +9,8 @@ build:
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies
-    - npm run build  # Run the next build command to build your Next.js app
   script:
-    - npm run dev
+    - npm run build
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
