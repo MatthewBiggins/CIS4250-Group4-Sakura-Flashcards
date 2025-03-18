@@ -11,6 +11,9 @@ build:
   before_script: 
     - cd sakura-flashcards
     - npm install  # Install dependencies
+    - https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    - apt install -y ./google-chrome-stable_current_amd64.deb apt-get
+    - install -y default-jdk 
   script:
     - npm run build
   cache:
