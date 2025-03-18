@@ -12,7 +12,7 @@ build:
     - apt-get update && apt-get install -y wget curl unzip  # Install any necessary tools
     - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chrome-headless-shell-linux64.zip  # Download Chrome
     - unzip chrome-headless-shell-linux64.zip  # Unzip ChromeDriver
-    - mv chrome-headless-shell /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
+    - mv chrome-headless-shell-linux64 /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
     - chmod +x /usr/local/bin/chrome-headless-shell
   script:
     - npm run build
