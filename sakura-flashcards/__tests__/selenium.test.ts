@@ -7,6 +7,10 @@ const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--headless');
 chromeOptions.addArguments('--disable-dev-shm-usage');
+if (process.env.CHROME_BIN){
+    chromeOptions.addArguments(`--binary_location="${process.env.CHROME_BIN}"`);
+}
+
 
 
 function wait(ms: number): Promise<void> {

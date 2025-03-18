@@ -24,6 +24,8 @@ build:
 test:
   image: node:23.7  # Make sure to use the same Node.js version as in the build stage
   stage: test
+  variables:
+      CHROME_BIN: "/usr/local/bin/chrome-headless-shell-linux64"  #
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies (ensure all dependencies are installed)
