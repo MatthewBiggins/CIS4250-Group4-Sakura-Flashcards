@@ -5,13 +5,14 @@ stages:
 # Build stage to compile the Next.js application
 build:
   image: node:23.7  # You can adjust the Node version if needed
-  stage: build]
+  stage: build
+  variables:
+      CHROME_BIN: "/usr/local/bin/chromedriver" 
   before_script: 
-    - cd sakura-flashcardsnpm
-    - npm install 
-    - webdriver-manager update
+    - cd sakura-flashcards
+    - npm install  # Install dependencies
   script:
-    - npm run build   # Run Jest tests
+    - npm run build
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
@@ -24,7 +25,6 @@ test:
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies
-    - webdriver-manager update
   script:
     - npm run test   # Run Jest tests
   artifacts:
