@@ -7,6 +7,8 @@ build:
   image: node:23.7  # You can adjust the Node version if needed
   stage: build
   before_script:
+  variables:
+      CHROME_BIN: "/usr/local/bin/chromedriver"  #
     - cd sakura-flashcards
     - npm install  # Install dependencies
     - apt-get update && apt-get install -y wget curl unzip  # Install any necessary tools
@@ -14,20 +16,35 @@ build:
     - unzip chrome-headless-shell-linux64.zip  # Unzip ChromeDriver
     - mv chrome-headless-shell-linux64 /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
     - chmod +x /usr/local/bin/chrome-headless-shell-linux64
+    - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chromedriver-linux64.zip
+    - unzip chromedrover-linux64.zip
+    - mv chromedriver-linux64 /usr/local/bin/
+    - chmod +x /usr/local/bin/chromedriver
   script:
     - npm run build
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
+    - .next/cache/
 
 # Test stage to run Jest tests
 test:
   image: node:23.7  # Make sure to use the same Node.js version as in the build stage
   stage: test
   variables:
-      CHROME_BIN: "/usr/local/bin/chrome-headless-shell-linux64"  #
+      CHROME_BIN: "/usr/local/bin/chromedriver"  #
   before_script:
     - cd sakura-flashcards
+    - npm install  # Install dependencies
+    - apt-get update && apt-get install -y wget curl unzip  # Install any necessary tools
+    - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chrome-headless-shell-linux64.zip  # Download Chrome
+    - unzip chrome-headless-shell-linux64.zip  # Unzip ChromeDriver
+    - mv chrome-headless-shell-linux64 /usr/local/bin/  # Move ChromeDriver to a directory in your PATH
+    - chmod +x /usr/local/bin/chrome-headless-shell-linux64
+    - wget https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.88/linux64/chromedriver-linux64.zip
+    - unzip chromedrover-linux64.zip
+    - mv chromedriver-linux64 /usr/local/bin/
+    - chmod +x /usr/local/bin/chromedriver
     - npm install  # Install dependencies (ensure all dependencies are installed)
     - npm run build  # Ensure the app is built before running tests
   script:
