@@ -11,6 +11,7 @@ build:
   before_script: 
     - cd sakura-flashcards
     - npm install  # Install dependencies
+    - webdriver-manager update
   script:
     - npm run build
   cache:
@@ -25,6 +26,7 @@ test:
   before_script:
     - cd sakura-flashcards
     - npm install  # Install dependencies
+    - webdriver-manager update
   script:
     - npm run test   # Run Jest tests
   artifacts:
