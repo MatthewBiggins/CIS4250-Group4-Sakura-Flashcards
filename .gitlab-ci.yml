@@ -6,9 +6,9 @@ stages:
 build:
   image: node:23.7  # You can adjust the Node version if needed
   stage: build
-  before_script:
   variables:
-      CHROME_BIN: "/usr/local/bin/chromedriver"  #
+      CHROME_BIN: "/usr/local/bin/chromedriver" 
+  before_script: 
     - cd sakura-flashcards
     - npm install  # Install dependencies
     - apt-get update && apt-get install -y wget curl unzip  # Install any necessary tools
