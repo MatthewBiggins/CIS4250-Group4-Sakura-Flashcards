@@ -10,9 +10,8 @@ build:
     - cd sakura-flashcardsnpm
     - npm install 
     - webdriver-manager update
-    - npm run build
   script:
-    - npm run test   # Run Jest tests
+    - npm run build   # Run Jest tests
   cache:
     paths:
       - node_modules/  # Cache node_modules to speed up subsequent builds
