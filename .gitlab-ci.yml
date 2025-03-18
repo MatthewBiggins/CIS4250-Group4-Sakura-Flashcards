@@ -4,12 +4,13 @@ stages:
 
 # Build stage to compile the Next.js application
 build:
-  image: node:23.7  # You can adjust the Node version if needed
+  image: selenium/standalone-chrome  # You can adjust the Node version if needed
   stage: build
   variables:
       CHROME_BIN: "/usr/local/bin/chromedriver" 
   before_script: 
-    - cd sakura-flashcards
+    - cd sakura-flashcardsnpm install selenium-standalone --save-dev
+    - npx selenium-standalone install && npx selenium-standalone start
     - npm install  # Install dependencies
     - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     - apt-get update && apt-get install build-essential
@@ -25,7 +26,7 @@ build:
 
 # Test stage to run Jest tests
 test:
-  image: node:23.7  # Make sure to use the same Node.js version as in the build stage
+  image: selenium/standalone-chrome  # Make sure to use the same Node.js version as in the build stage
   stage: test
   before_script:
     - cd sakura-flashcards
