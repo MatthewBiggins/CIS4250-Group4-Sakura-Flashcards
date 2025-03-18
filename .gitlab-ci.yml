@@ -1,0 +1,34 @@
+stages:
+  - build
+  - test
+
+# Build stage to compile the Next.js application
+build:
+  image: selenium/standalone-chrome  # You can adjust the Node version if needed
+  stage: build
+  before_script: 
+    - cd sakura-flashcards
+    - npm install
+  script:
+    - npm run build
+  cache:
+    paths:
+      - node_modules/  # Cache node_modules to speed up subsequent builds
+      - .next/cache/
+
+# Test stage to run Jest tests
+test:
+  image: selenium/standalone-chrome  # Make sure to use the same Node.js version as in the build stage
+  stage: test
+  before_script:
+    - cd sakura-flashcards
+    - npm install  # Install dependencies
+  script:
+    - npm run test   # Run Jest tests
+  artifacts:
+    paths:
+      - coverage/  # Optionally store coverage results if needed
+  cache:
+    paths:
+      - node_modules/  # Cache node_modules to speed up subsequent builds
+      - .next/cache/
