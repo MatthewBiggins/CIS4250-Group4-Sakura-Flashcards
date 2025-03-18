@@ -1,5 +1,9 @@
 import { Builder, By, Key, until, WebDriver } from 'selenium-webdriver';
 import * as chrome from 'selenium-webdriver/chrome';
+import { chromium } from 'playwright';  // Import Playwright to access the bundled Chromium
+
+// Get the path to the bundled Chromium from Playwright
+const chromiumPath = chromium.executablePath();
 import 'chromedriver';
 import TestServer from './test-server';
 
@@ -8,7 +12,7 @@ chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--headless');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 if (process.env.CHROME_BIN){
-    chromeOptions.addArguments(`--binary_location="${process.env.CHROME_BIN}"`);
+    chromeOptions.addArguments(`--binary_location="${chromiumPath}}"`);
 }
 
 
