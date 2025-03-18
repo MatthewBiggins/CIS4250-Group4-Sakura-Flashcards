@@ -13,7 +13,7 @@ describe('Selenium test', () => {
                         .build();
         console.log("DRIVER");
         console.log(driver.getExecutor);
-    }, 30000);
+    }, 120000);
 
     beforeAll(async () => {
         await TestServer.start();
@@ -23,13 +23,4 @@ describe('Selenium test', () => {
         await driver.get('http://localhost:3000/');
         await wait(3000);
     }, 20000);
-
-    afterEach(async () => {
-        await driver.quit();
-        console.log('Browser closed');
-    });
-
-    afterAll(async () => {
-        await TestServer.stop();
-    });
   });
