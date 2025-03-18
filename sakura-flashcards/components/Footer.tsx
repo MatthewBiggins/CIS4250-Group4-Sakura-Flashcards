@@ -20,7 +20,7 @@ const Footer = () => {
           href="https://github.com/kt946/sakura-flashcards"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:opacity-60 custom-transition"
+          className="hover:opacity-60 custom-transition text-neutral-200"
         >
           <FaGithub className="size-7" />
         </Link>

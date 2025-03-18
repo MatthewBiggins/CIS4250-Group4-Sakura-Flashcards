@@ -8,6 +8,7 @@ type MobileSidebarProps = {
   toggleSidebar: () => void;
 };
 
+// style properties for the sidebar menu animation
 const framerSidebarPanel = {
   initial: { x: '100%' },
   animate: { x: 0 },
@@ -15,6 +16,7 @@ const framerSidebarPanel = {
   transition: { type: 'tween', duration: 0.3 },
 };
 
+// style properties for the background blur animation
 const framerSidebarBackground = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },

@@ -27,7 +27,7 @@ export default function UnitProgress(props: ProgressProps) {
   return (
     <div
       id={props.name}
-      className="rounded-lg bg-black border border-violet-900 p-4 lg:p-6 justify-center text-center w-48"
+      className="rounded-lg bg-lessonLink-hover border border-violet-900 p-4 lg:p-6 justify-center text-center w-48"
     >
       <div className="mb-2">
         <p className="text-2xl font-bold">

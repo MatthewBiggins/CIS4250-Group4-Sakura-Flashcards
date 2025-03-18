@@ -54,7 +54,7 @@ const getProgressFromFirebase = async (querySnapshot: any) => {
 }
 
 const Login = () => {
-  // State to store form data and validation errors
+  // States to store form data and validation errors
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{
     email?: string;
@@ -62,7 +62,9 @@ const Login = () => {
     submit?: string;
   }>({});
 
+  // State to indicate the login data is currently being validated
   const [isValidating, setIsValidating] = useState(false);
+
   const router = useRouter();
   const auth = useContext(UserContext);
 
@@ -100,7 +102,7 @@ const Login = () => {
       auth.setProgress(progress);
       auth.setUserId(querySnapshot.docs[0].id);
 
-      // Navigate to home page
+      // Navigate to the progress dashboard
       router.push("/dashboard");
     } catch (error) {
       setErrors({ submit: (error as Error).message });
@@ -112,6 +114,7 @@ const Login = () => {
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // clear any previous errors for the input field
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -125,6 +128,7 @@ const Login = () => {
         className="flex flex-col items-center justify-center space-y-2"
       >
         <div className="text-right space-y-2">
+          {/* Email */}
           <div className="space-x-2">
             <label htmlFor="email">Email:</label>
             <input
@@ -141,6 +145,7 @@ const Login = () => {
             <p className="text-sm text-red-500">{errors.email}</p>
           )}
 
+          {/* Password */}
           <div className="space-x-2">
             <label htmlFor="password">Password:</label>
             <input
@@ -158,14 +163,17 @@ const Login = () => {
           )}
         </div>
 
+        {/* Submission Errors */}
         {errors.submit && (
           <p className="text-center text-sm text-red-500">{errors.submit}</p>
         )}
 
+        {/* Submit Button */}
         <Button variant="default" type="submit" disabled={isValidating}>
           {isValidating ? "Signing In..." : "Submit"}
         </Button>
 
+        {/* Create Account Link */}
         <p className="text-center text-sm">
           Don't have an account?{" "}
           <Link

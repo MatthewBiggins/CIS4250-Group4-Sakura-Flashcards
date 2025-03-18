@@ -1,3 +1,4 @@
+// Array of links for the header and mobile sidebar
 export const navLinks = [
   { href: "/", key: "Home", text: "Home" },
   { href: "/glossary", key: "Glossary", text: "Glossary" },
@@ -13,7 +14,7 @@ export const navLinks = [
     key: "genki-2",
     text: "Genki Vol. 2",
   },
-  { href: "/dashboard", key: "Dashboard", text: "Dashboard"}
+  { href: "/dashboard", key: "Dashboard", text: "Dashboard" },
 ];
 
 type Item = {
@@ -22,6 +23,7 @@ type Item = {
   description?: string;
 };
 
+// details about the provided study sets, including the link slug to the study set pages
 export const StudySets: { name: string; items: Item[] }[] = [
   {
     name: "Study Sets",

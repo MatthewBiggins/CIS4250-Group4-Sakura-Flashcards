@@ -33,10 +33,12 @@ export default function StudySetProgress(props: ProgressProps) {
   return (
     <div id={props.name} className="my-5">
       <h2 className="text-3xl font-bold">{props.name}</h2>
+      {/* Study Set Progress */}
       <ProgressBar
         showLabel={true}
         progress={(countSetProgress(props.progress) / total) * 100}
       />
+      {/* Lessons in Study Set */}
       {props.progress.map((lesson, i) => {
         return (
           <LessonProgress
