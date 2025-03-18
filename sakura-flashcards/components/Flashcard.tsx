@@ -42,8 +42,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   );
   
   
-
-
   const total = displayCards.length;
   const currentCard = displayCards[currentIndex];  
   const [cardBack, setCardBack] = useState(currentCard.backSide);
