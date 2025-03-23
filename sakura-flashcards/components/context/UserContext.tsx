@@ -1,10 +1,13 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
+import { TStudySetProgress } from "@/constants";
 
 interface AuthContext {
   userName: string;
   setUser: (name: string) => void;
+  progress: TStudySetProgress[];
+  setProgress: (newProgress: TStudySetProgress[]) => void;
   userId: string;
   setUserId: (name: string) => void;
 }
@@ -27,6 +30,8 @@ function getFromLocalStorage(key: string): string | null {
 const UserContext = createContext<AuthContext>({
   userName: "",
   setUser: () => {},
+  progress: [],
+  setProgress: () => {},
   userId: "",
   setUserId: () => {},
 });
@@ -59,6 +64,7 @@ export function UserProvider({
   children: React.ReactNode;
 }>) {
   const [userName, setUser] = useState(getStoredUserName());
+  const [progress, setProgress] = useState<TStudySetProgress[]>([]);
   const [userId, setUserId] = useState(getStoredUserId());
 
   // NOTE: save the username to the brower cache
@@ -81,7 +87,7 @@ export function UserProvider({
   }, [userId]);
 
   return (
-    <UserContext.Provider value={{ userName, setUser, userId, setUserId }}>
+    <UserContext.Provider value={{ userName, setUser, progress, setProgress, userId, setUserId }}>
       {children}
     </UserContext.Provider>
   );
