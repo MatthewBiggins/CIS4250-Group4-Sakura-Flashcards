@@ -52,7 +52,6 @@ export default function UnitProgress(props: ProgressProps) {
       {/* If unit was attempted then show the correctness score */}
       {totalAttempts.attempts > 0 && (
         <ConfidenceProgress
-          showLabel={false}
           correct={totalAttempts.correct}
           attempts={totalAttempts.attempts}
         />

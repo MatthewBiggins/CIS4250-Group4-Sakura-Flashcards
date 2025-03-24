@@ -1,7 +1,6 @@
 import ProgressBarBase from "@/components/ui/progressBarBase";
 
 interface ProgressProps {
-  showLabel: boolean;
   correct: number;
   attempts: number;
 }
@@ -11,7 +10,7 @@ export default function ConfidenceProgress(props: ProgressProps) {
 
   return (
     <ProgressBarBase
-      showLabel={props.showLabel}
+      showLabel={false}
       progress={confidence}
       progressType=" Confidence Ratio"
       leftLabel="✓"
