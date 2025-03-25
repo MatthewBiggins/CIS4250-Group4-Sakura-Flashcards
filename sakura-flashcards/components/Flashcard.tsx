@@ -42,6 +42,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
   
+  const [shouldRandomize, setShouldRandomize] = useState(false);
   
   const total = displayCards.length;
   const currentCard = displayCards[currentIndex];  
@@ -58,6 +59,26 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
   }
   const cardColour = `hsl(${rawCardColour})`;
+
+  // Randomize the flashcards
+  const shuffle = (array: typeof displayCards) => {
+    return (
+      array
+        // create an array with a random sort value and the card values
+        .map((card) => ({ sort: Math.random(), value: card }))
+        // sort based on random value
+        .sort((a, b) => a.sort - b.sort)
+        // map the array values
+        .map((card) => card.value)
+    );
+  };
+  useEffect(() => {
+    if (shouldRandomize) {
+      const randomizedCards = shuffle(displayCards);
+
+      setDisplayCards(randomizedCards);
+    }
+  }, [shouldRandomize]);
 
   const createAnswers = async () => {
     var wrongAnswer1 = getWrongAnswer();
@@ -536,6 +557,15 @@ const handleReviewIncorrect = () => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
+
+      {/* Randomize Flashcards Toggle */}
+      <Button
+        onClick={() => {
+          setShouldRandomize((prev) => !prev);
+        }}
+      >
+        {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
+      </Button>
 
       {/* Study Mode Toggle */}
       {studyMode != "mc" && 
