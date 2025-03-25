@@ -8,6 +8,8 @@ import { useContext } from "react";
 import UserContext from "@/components/context/UserContext";
 import { TCardProgress } from "@/constants";
 import { useRouter } from "next/navigation";
+import { AnimatePresence } from 'framer-motion';
+
 
 import {
   doc,
@@ -385,20 +387,37 @@ const handleReviewIncorrect = () => {
         >
           {/* Flashcard Front */}
           <motion.div
-            className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: cardColour }}
-            animate={{
-              backgroundColor:
-                lastAction === "correct"
-                  ? "rgba(34, 197, 94, 0.2)"
-                  : lastAction === "incorrect"
-                  ? "rgba(239, 68, 68, 0.2)"
-                  : cardColour,
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
-          </motion.div>
+  className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
+  initial={{ backgroundColor: cardColour }}
+  animate={{
+    backgroundColor:
+      lastAction === "correct"
+        ? "rgba(34, 197, 94, 0.2)"
+        : lastAction === "incorrect"
+        ? "rgba(239, 68, 68, 0.2)"
+        : cardColour,
+  }}
+  transition={{ duration: 0.3 }}
+>
+  <AnimatePresence>
+    {lastAction && (
+      <motion.div
+        key={lastAction}
+        className="absolute inset-0 flex items-center justify-center"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.2 }}
+        transition={{ duration: 0.5, type: 'spring' }}
+      >
+        <div className={`text-6xl font-bold ${lastAction === 'correct' ? 'text-green-500' : 'text-red-500'} bg-black/50 p-4 rounded-xl`}>
+          {lastAction === 'correct' ? 'Correct!' : 'Incorrect!'}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+  <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
+</motion.div>
+
           {/* Flashcard Back */}
           <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
