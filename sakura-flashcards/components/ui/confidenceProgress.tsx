@@ -2,6 +2,7 @@ import ProgressBarBase from "@/components/ui/progressBarBase";
 
 interface ProgressProps {
   correct: number;
+  incorrect: number;
   attempts: number;
 }
 
@@ -13,10 +14,12 @@ export default function ConfidenceProgress(props: ProgressProps) {
       showLabel={false}
       progress={confidence}
       progressType=" Confidence Ratio"
-      leftLabel="✓"
-      rightLabel="✗"
+      tooltipText={[
+        `Total Attempts: ${props.attempts}`,
+        `✓ ${props.correct}`,
+        `✗ ${props.incorrect}`,
+      ]}
       style={{
-        // TODO: finalize correct/incorrect colours
         background: "bg-red-500 dark:bg-red-900",
         progress: "bg-green-500 dark:bg-green-900",
       }}
