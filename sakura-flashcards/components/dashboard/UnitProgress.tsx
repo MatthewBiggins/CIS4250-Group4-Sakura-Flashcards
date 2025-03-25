@@ -1,4 +1,5 @@
 import { TUnitProgress } from "@/constants";
+import ConfidenceProgress from "@/components/ui/confidenceProgress";
 
 interface ProgressProps {
   name: string;
@@ -9,7 +10,7 @@ interface ProgressProps {
 export function countUnitProgress(data: TUnitProgress) {
   let progress = 0;
 
-  // Sum all correct answers across flashcards
+  // Count all flashcards with correct answers
   data.forEach(({ correct }) => {
     progress += correct >= 1 ? 1 : 0;
   });
@@ -17,12 +18,23 @@ export function countUnitProgress(data: TUnitProgress) {
   return progress;
 }
 
+function countUnitAttempts(data: TUnitProgress) {
+  let attempts = 0;
+  let correct = 0;
+
+  // Sum all correct and incorrect answers across flashcards
+  data.forEach((card) => {
+    correct += card.correct;
+    attempts += card.correct;
+    attempts += card.incorrect;
+  });
+
+  return { attempts, correct };
+}
+
 export default function UnitProgress(props: ProgressProps) {
-  const totalCorrect = countUnitProgress(props.progress);
-  const totalAttempts = Array.from(props.progress.values()).reduce(
-    (acc, { correct, incorrect }) => acc + correct + incorrect,
-    0
-  );
+  const totalCompleted = countUnitProgress(props.progress);
+  const totalAttempts = countUnitAttempts(props.progress);
 
   return (
     <div
@@ -31,20 +43,19 @@ export default function UnitProgress(props: ProgressProps) {
     >
       <div className="mb-2">
         <p className="text-2xl font-bold">
-          {((totalCorrect / props.totalFlashcards) * 100).toFixed(0)}%
+          {((totalCompleted / props.totalFlashcards) * 100).toFixed(0)}%
         </p>
         <p className="text-sm text-neutral-400">
-          {totalCorrect}/{props.totalFlashcards} cards
+          {totalCompleted}/{props.totalFlashcards} cards
         </p>
       </div>
-      {/* <div className="border-t border-violet-900 pt-2">
-        <p className="text-sm">
-          <span className="text-green-500">{totalCorrect} ✓</span> /{" "}
-          <span className="text-red-500">
-            {totalAttempts - totalCorrect} ✗
-          </span>
-        </p>
-      </div> */}
+      {/* If unit was attempted then show the correctness score */}
+      {totalAttempts.attempts > 0 && (
+        <ConfidenceProgress
+          correct={totalAttempts.correct}
+          attempts={totalAttempts.attempts}
+        />
+      )}
       <p className="text-pretty mt-2">{props.name}</p>
     </div>
   );
