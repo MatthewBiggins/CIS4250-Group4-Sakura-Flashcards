@@ -61,7 +61,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const cardColour = `hsl(${rawCardColour})`;
 
   // Randomize the flashcards
-  const shuffle = (array: typeof displayCards) => {
+  const shuffleFlashcards = (array: typeof displayCards) => {
     return (
       array
         // create an array with a random sort value and the card values
@@ -72,13 +72,34 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
         .map((card) => card.value)
     );
   };
-  useEffect(() => {
-    if (shouldRandomize) {
-      const randomizedCards = shuffle(displayCards);
 
-      setDisplayCards(randomizedCards);
-    }
-  }, [shouldRandomize]);
+  const unshuffleFlashcards = (array: typeof displayCards) => {
+    return (
+      array
+        // create a copy of the array
+        .map((card) => card)
+        // sort based on the original index of the card
+        .sort((a, b) => a.originalIndex - b.originalIndex)
+    );
+  };
+
+  useEffect(
+    function onRandomizeChange() {
+      if (shouldRandomize) {
+        const randomizedCards = shuffleFlashcards(displayCards);
+        setDisplayCards(randomizedCards);
+      } else {
+        const normalCards = unshuffleFlashcards(displayCards);
+        setDisplayCards(normalCards);
+      }
+
+      // Return to the first flashcard
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setProgressBar(0);
+    },
+    [shouldRandomize]
+  );
 
   const createAnswers = async () => {
     var wrongAnswer1 = getWrongAnswer();
