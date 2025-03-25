@@ -19,17 +19,20 @@ export function countUnitProgress(data: TUnitProgress) {
 }
 
 function countUnitAttempts(data: TUnitProgress) {
-  let attempts = 0;
   let correct = 0;
+  let incorrect = 0;
 
   // Sum all correct and incorrect answers across flashcards
   data.forEach((card) => {
     correct += card.correct;
-    attempts += card.correct;
-    attempts += card.incorrect;
+    incorrect += card.incorrect;
   });
 
-  return { attempts, correct };
+  return {
+    attempts: correct + incorrect,
+    correct,
+    incorrect,
+  };
 }
 
 export default function UnitProgress(props: ProgressProps) {
@@ -53,6 +56,7 @@ export default function UnitProgress(props: ProgressProps) {
       {totalAttempts.attempts > 0 && (
         <ConfidenceProgress
           correct={totalAttempts.correct}
+          incorrect={totalAttempts.incorrect}
           attempts={totalAttempts.attempts}
         />
       )}
