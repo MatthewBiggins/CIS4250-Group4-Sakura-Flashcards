@@ -40,7 +40,7 @@ export default function ProgressBarBase(props: ProgressProps) {
         }}
       >
         {props.tooltipText?.map((ln) => (
-          <p>{ln}</p>
+          <p key={ln}>{ln}</p>
         ))}
       </div>
     </div>
