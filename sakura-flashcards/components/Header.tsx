@@ -26,7 +26,7 @@ const Header = () => {
     setIsClient(true);
   }, []);
 
-  return isClient ? (
+  return (
     <>
       <header className="sticky top-0 p-4 max-sm:py-2 z-40 text-lessonColour bg-lessonLink backdrop-blur border-b border-gray-300/20">
         <nav className="md:container flex max-md:justify-between items-center gap-12">
@@ -65,27 +65,31 @@ const Header = () => {
               </li>
             ))}
             <div className="flex flex-grow"></div>
-            {auth.userName ? (
-              // If a user is logged in
-              <li className="hover:opacity-60 custom-transition object-left-top">
-                <Link className="link p-2 relative" href="/" onClick={handleLogOut}>
-                  Log Out
-                </Link>
-              </li>
+            {isClient ? (
+              auth.userName ? (
+                // If a user is logged in
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link className="link p-2 relative" href="/" onClick={handleLogOut}>
+                    Log Out
+                  </Link>
+                </li>
+              ) : (
+                // else if a user is not logged in
+                <>
+                  <li className="hover:opacity-60 custom-transition object-left-top">
+                    <Link href="/login" className="p-2 relative">
+                      Login
+                    </Link>
+                  </li>
+                  <li className="hover:opacity-60 custom-transition object-left-top">
+                    <Link href="/sign-up" className="p-2 relative">
+                      Create Account
+                    </Link>
+                  </li>
+                </>
+              )
             ) : (
-              // else if a user is not logged in
-              <>
-                <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link href="/login" className="p-2 relative">
-                    Login
-                  </Link>
-                </li>
-                <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link href="/sign-up" className="p-2 relative">
-                    Create Account
-                  </Link>
-                </li>
-              </>
+              <div>Loading...</div>
             )}
           </ul>
           {/* Sidebar */}
@@ -106,7 +110,7 @@ const Header = () => {
         {open && <MobileSidebar toggleSidebar={toggleSidebar} />}
       </AnimatePresence>
     </>
-  ): null;
+  )
 };
 
 export default Header;
