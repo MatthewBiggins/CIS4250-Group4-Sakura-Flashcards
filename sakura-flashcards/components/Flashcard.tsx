@@ -8,6 +8,8 @@ import { useContext } from "react";
 import UserContext from "@/components/context/UserContext";
 import { TCardProgress } from "@/constants";
 import { useRouter } from "next/navigation";
+import { AnimatePresence } from 'framer-motion';
+
 
 import {
   doc,
@@ -15,7 +17,6 @@ import {
   setDoc,
 } from "firebase/firestore";
 import db from "../firebase/configuration";
-import Link from 'next/link';
 
 type FlashcardProps = {
   cardData: Array<{ frontSide: string; backSide: string }>;
@@ -41,13 +42,13 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
   
+  const [shouldRandomize, setShouldRandomize] = useState(false);
   
   const total = displayCards.length;
   const currentCard = displayCards[currentIndex];  
   const [cardBack, setCardBack] = useState(currentCard.backSide);
   const { userId } = useContext(UserContext);
-  const [studyMode, setStudyMode] = useState('studymode');
-  const [currentAnswer, setCurrentAnswer] = useState("classic")
+  const [studyMode, setStudyMode] = useState('classic');
   const [answers, setAnswers] = useState(new Array<String>());
 
   // tailwind colours
@@ -59,9 +60,59 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }
   const cardColour = `hsl(${rawCardColour})`;
 
+  // Randomize the flashcards
+  const shuffleFlashcards = (array: typeof displayCards) => {
+    return (
+      array
+        // create an array with a random sort value and the card values
+        .map((card) => ({ sort: Math.random(), value: card }))
+        // sort based on random value
+        .sort((a, b) => a.sort - b.sort)
+        // map the array values
+        .map((card) => card.value)
+    );
+  };
+
+  const unshuffleFlashcards = (array: typeof displayCards) => {
+    return (
+      array
+        // create a copy of the array
+        .map((card) => card)
+        // sort based on the original index of the card
+        .sort((a, b) => a.originalIndex - b.originalIndex)
+    );
+  };
+
+  useEffect(
+    function onRandomizeChange() {
+      if (shouldRandomize) {
+        const randomizedCards = shuffleFlashcards(displayCards);
+        setDisplayCards(randomizedCards);
+      } else {
+        const normalCards = unshuffleFlashcards(displayCards);
+        setDisplayCards(normalCards);
+      }
+
+      // Return to the first flashcard
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setProgressBar(0);
+    },
+    [shouldRandomize]
+  );
+
   const createAnswers = async () => {
-    var values = [getWrongAnswer(), getWrongAnswer(), getWrongAnswer(), cardBack];
-    for (var i = 0; i < values.length * 3; i++) {
+    var wrongAnswer1 = getWrongAnswer();
+    var wrongAnswer2;
+    do {
+      wrongAnswer2 = getWrongAnswer();
+    } while (wrongAnswer1 == wrongAnswer2);
+    var wrongAnswer3;
+    do {
+      wrongAnswer3 = getWrongAnswer();
+    } while (wrongAnswer1 == wrongAnswer3 || wrongAnswer2 == wrongAnswer3);
+    var values = [wrongAnswer1, wrongAnswer2, wrongAnswer3, cardBack];
+    for (var i = 0; i < values.length * 5; i++) {
       var index1 = Math.floor(Math.random() * values.length); // Generate random indexes
       var index2 = Math.floor(Math.random() * values.length);
       
@@ -75,7 +126,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     var index;
     do {
       index = Math.floor(Math.random() * cardData.length);
-    } while (index == currentIndex);
+    } while (cardData[index].backSide == cardBack);
     return cardData[index].backSide;
   }
   useEffect(()=>{
@@ -104,12 +155,6 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       setShowCompletionPopup(shouldShow);
     }
   }, [currentIndex, total, answeredIndices, isReviewMode]);
-  
-  const handleMcConfirm = async () => {
-    setIsFlipped(true);
-    handleResponse(currentAnswer == cardBack);
-    setCurrentAnswer("");
-  };
 
   const handleFlip = async () => {
     if (!isAnimating) {
@@ -154,9 +199,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
           break;
         case " ": // Space bar to flip
           event.preventDefault();
-          if (studyMode == 'mc') {
-            handleMcConfirm();
-          } else {
+          if (studyMode != 'mc') {
             handleFlip();
           }
           break;
@@ -212,8 +255,10 @@ const handleResponse = async (isCorrect: boolean) => {
   });
 
   // Always update UI and progress
-  setIsFlipped(false);
-  handleNext();
+  if (studyMode != "mc") {
+    setIsFlipped(false);
+    handleNext();
+  }
   setLastAction(isCorrect ? 'correct' : 'incorrect');
 
   
@@ -375,7 +420,7 @@ const handleReviewIncorrect = () => {
   </div>
 )}
 
-      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode == 'mc') {handleFlip}}}>
+      <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode != 'mc') {handleFlip()}}}>
         <motion.div
           className="flip-card-inner w-[100%] h-[100%] cursor-pointer"
           initial={false}
@@ -385,83 +430,115 @@ const handleReviewIncorrect = () => {
         >
           {/* Flashcard Front */}
           <motion.div
-            className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-            initial={{ backgroundColor: cardColour }}
-            animate={{
-              backgroundColor:
-                lastAction === "correct"
-                  ? "rgba(34, 197, 94, 0.2)"
-                  : lastAction === "incorrect"
-                  ? "rgba(239, 68, 68, 0.2)"
-                  : cardColour,
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
-          </motion.div>
+  className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
+  initial={{ backgroundColor: cardColour }}
+  animate={{
+    backgroundColor:
+      lastAction === "correct"
+        ? "rgba(34, 197, 94, 0.2)"
+        : lastAction === "incorrect"
+        ? "rgba(239, 68, 68, 0.2)"
+        : cardColour,
+  }}
+  transition={{ duration: 0.3 }}
+>
+  <AnimatePresence>
+    {lastAction && (
+      <motion.div
+        key={lastAction}
+        className="absolute inset-0 flex items-center justify-center"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.2 }}
+        onAnimationComplete={() => {
+          if (studyMode == "mc") {
+            setIsFlipped(true);
+          }
+        }}
+        transition={{ duration: 0.5, type: 'spring' }}
+      >
+        <div className={`text-6xl font-bold ${lastAction === 'correct' ? 'text-green-500' : 'text-red-500'} bg-black/50 p-4 rounded-xl`}>
+          {lastAction === 'correct' ? 'Correct!' : 'Incorrect!'}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+  <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
+</motion.div>
+
           {/* Flashcard Back */}
           <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
-        {studyMode == 'mc' && (
-          <> 
-            {answers.map(answer => (
-              <>
-                <input
-                  type="radio"
-                  value={answer.valueOf()}
-                  checked={currentAnswer == answer.valueOf()}
-                  onChange={() => {setCurrentAnswer(answer.valueOf())}}
-                  />
-                  {answer.valueOf()}
-                  <br/>
-              </>
-            ))}
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={handleMcConfirm}
-              className="px-6"
-            >
-              Confirm Answer
-            </Button>
-          </>
-        )}
       </div>
-
+      
       {/* Correct/Incorrect Buttons */}
       <div className="h-20">
-        <motion.div
-          className="flex gap-4 justify-center"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{
-            opacity: isFlipped ? 1 : 0,
-            y: isFlipped ? 0 : -10,
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          {(isFlipped && studyMode != 'mc') && (
-            <>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleResponse(false)}
-                className="bg-red-500/20 hover:bg-red-500/30 text-red-500 hover:text-red-400 px-6"
-              >
-                <FaTimes className="mr-2" /> Incorrect
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleResponse(true)}
-                className="bg-green-500/20 hover:bg-green-500/30 text-green-500 hover:text-green-400 px-6"
-              >
-                <FaCheck className="mr-2" /> Correct
-              </Button>
-            </>
-          )}
-        </motion.div>
+        {studyMode != "mc" &&
+          <motion.div
+            className="flex gap-4 justify-center"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{
+              opacity: isFlipped ? 1 : 0,
+              y: isFlipped ? 0 : -10,
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            {(isFlipped) && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => handleResponse(false)}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-red-500 hover:text-red-400 px-6"
+                >
+                  <FaTimes className="mr-2" /> Incorrect
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => handleResponse(true)}
+                  className="bg-green-500/20 hover:bg-green-500/30 text-green-500 hover:text-green-400 px-6"
+                >
+                  <FaCheck className="mr-2" /> Correct
+                </Button>
+              </>
+            )}
+          </motion.div>
+        }
+        
+        {/* MC Answer buttons */}
+        {(studyMode == 'mc') && 
+          <motion.div
+            className="flex gap-4 justify-center"
+            initial={{ opacity: 1, y: 0 }}
+            animate={{
+              opacity: isFlipped ? 0 : 1,
+              y: isFlipped ? -10 : 0,
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            {!isFlipped &&
+              <>
+                {answers.map(answer => (
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      key={answer.valueOf()}
+                      className="hover:bg-lessonLink bg-lessonLink-hover"
+                      onClick={() => {
+                        handleResponse(cardBack.valueOf() == answer.valueOf());
+                      }}
+                    >
+                      {answer.valueOf()}
+                    </Button>
+                ))}
+              </>
+            }
+          </motion.div>
+        }
+
       </div>
 
       {/* Flashcard Navigation Buttons */}
@@ -501,6 +578,15 @@ const handleReviewIncorrect = () => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
+
+      {/* Randomize Flashcards Toggle */}
+      <Button
+        onClick={() => {
+          setShouldRandomize((prev) => !prev);
+        }}
+      >
+        {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
+      </Button>
 
       {/* Study Mode Toggle */}
       {studyMode != "mc" && 

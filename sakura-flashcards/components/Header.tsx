@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
@@ -19,6 +19,12 @@ const Header = () => {
     auth.setUser("");
     auth.setUserId("");
   };
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <>
@@ -59,24 +65,40 @@ const Header = () => {
               </li>
             ))}
             <div className="flex flex-grow"></div>
-            {auth.userName ? (
-              // If a user is logged in
-              <li className="hover:opacity-60 custom-transition object-left-top">
-                <Link id="logout" className="link p-2" href="/" onClick={handleLogOut}>
-                  <span className="relative">Log Out</span>
-                </Link>
-              </li>
+            {isClient ? (
+              auth.userName ? (
+                // If a user is logged in
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link id="logout" className="link p-2 relative" href="/" onClick={handleLogOut}>
+                    Log Out
+                  </Link>
+                </li>
+              ) : (
+                // else if a user is not logged in
+                <>
+                  <li className="hover:opacity-60 custom-transition object-left-top">
+                    <Link href="/login" className="p-2 relative">
+                      Login
+                    </Link>
+                  </li>
+                  <li className="hover:opacity-60 custom-transition object-left-top">
+                    <Link href="/sign-up" className="p-2 relative">
+                      Create Account
+                    </Link>
+                  </li>
+                </>
+              )
             ) : (
               // else if a user is not logged in
               <>
                 <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link id="login" href="/login" className="p-2">
-                    <span className="relative">Login</span>
+                  <Link id="login" href="/login" className="p-2 relative">
+                    Login
                   </Link>
                 </li>
                 <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link id="signup" href="/sign-up" className="p-2">
-                    <span className="relative">Create Account</span>
+                  <Link id="signup" href="/sign-up" className="p-2 relative">
+                    Create Account
                   </Link>
                 </li>
               </>
@@ -100,7 +122,7 @@ const Header = () => {
         {open && <MobileSidebar toggleSidebar={toggleSidebar} />}
       </AnimatePresence>
     </>
-  );
+  )
 };
 
 export default Header;

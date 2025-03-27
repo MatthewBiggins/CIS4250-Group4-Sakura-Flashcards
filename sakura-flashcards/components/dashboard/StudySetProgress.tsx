@@ -42,6 +42,7 @@ export default function StudySetProgress(props: ProgressProps) {
       {props.progress.map((lesson, i) => {
         return (
           <LessonProgress
+            key={props.data[i].lessonTitle}
             name={props.data[i].lessonTitle}
             progress={lesson}
             data={props.data[i].units}
