@@ -42,6 +42,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
   
+  const [shouldRandomize, setShouldRandomize] = useState(false);
   
   const total = displayCards.length;
   const currentCard = displayCards[currentIndex];  
@@ -58,6 +59,47 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
   }
   const cardColour = `hsl(${rawCardColour})`;
+
+  // Randomize the flashcards
+  const shuffleFlashcards = (array: typeof displayCards) => {
+    return (
+      array
+        // create an array with a random sort value and the card values
+        .map((card) => ({ sort: Math.random(), value: card }))
+        // sort based on random value
+        .sort((a, b) => a.sort - b.sort)
+        // map the array values
+        .map((card) => card.value)
+    );
+  };
+
+  const unshuffleFlashcards = (array: typeof displayCards) => {
+    return (
+      array
+        // create a copy of the array
+        .map((card) => card)
+        // sort based on the original index of the card
+        .sort((a, b) => a.originalIndex - b.originalIndex)
+    );
+  };
+
+  useEffect(
+    function onRandomizeChange() {
+      if (shouldRandomize) {
+        const randomizedCards = shuffleFlashcards(displayCards);
+        setDisplayCards(randomizedCards);
+      } else {
+        const normalCards = unshuffleFlashcards(displayCards);
+        setDisplayCards(normalCards);
+      }
+
+      // Return to the first flashcard
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setProgressBar(0);
+    },
+    [shouldRandomize]
+  );
 
   const createAnswers = async () => {
     var wrongAnswer1 = getWrongAnswer();
@@ -536,6 +578,15 @@ const handleReviewIncorrect = () => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
+
+      {/* Randomize Flashcards Toggle */}
+      <Button
+        onClick={() => {
+          setShouldRandomize((prev) => !prev);
+        }}
+      >
+        {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
+      </Button>
 
       {/* Study Mode Toggle */}
       {studyMode != "mc" && 
