@@ -89,7 +89,19 @@ const Header = () => {
                 </>
               )
             ) : (
-              <div>Loading...</div>
+              // else if a user is not logged in
+              <>
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link href="/login" className="p-2 relative">
+                    Login
+                  </Link>
+                </li>
+                <li className="hover:opacity-60 custom-transition object-left-top">
+                  <Link href="/sign-up" className="p-2 relative">
+                    Create Account
+                  </Link>
+                </li>
+              </>
             )}
           </ul>
           {/* Sidebar */}
