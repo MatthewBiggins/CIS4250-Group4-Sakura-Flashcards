@@ -42,14 +42,18 @@ describe('Selenium test', () => {
     }
 
     async function login() {
+        // Navigate to login page
         await driver.get('http://localhost:3000/login');
         
+        // Find html element with id='email'
         let emailInput = await driver.findElement(By.id('email'));
+        // Simulate typing email into input box
         await emailInput.sendKeys('test@gmail.com');
         
         let passwordInput = await driver.findElement(By.id('password'));
         await passwordInput.sendKeys('test');
         
+        // Find submit button, simulate click
         let submitButton = await driver.findElement(By.css('button[type="submit"]'));
         await submitButton.click();
 
@@ -64,6 +68,7 @@ describe('Selenium test', () => {
         // Start the server using `npm run dev`
         serverProcess = spawn('npm', ['run', 'dev'])
         serverProcess.on('error', (err: string) => console.error("Error starting server: " + err))
+        
         // Wait for the server to be available
         await waitForServer('http://localhost:3000');
     }, 120000);
@@ -89,11 +94,10 @@ describe('Selenium test', () => {
         let loginFound = await getElementExists(By.id('login'));
         let signupFound = await getElementExists(By.id('signup'));
 
-        // Check if the 'Log Out' link is present and visible
-        const isLogOutLinkDisplayed = await logOutLink.isDisplayed();
+        // Check that logout link exists, login and signup are gone
+        expect(logOutLink.isDisplayed).toBe(true);
         expect(loginFound).toEqual(false);
         expect(signupFound).toEqual(false);
-        expect(isLogOutLinkDisplayed).toBe(true);
     }, 20000);
 
     it('Logout and verify redirection status code 200', async () => {
@@ -158,11 +162,13 @@ describe('Selenium test', () => {
     });
 
     afterAll(async () => {
-        // Kill the server process after the tests are done
+        // Delete any users created by tests
         const usernameSnapshot = await getDocs(usernameQuery);
         usernameSnapshot.forEach(async doc => {
             await deleteDoc(doc.ref);
         });
+
+        // Kill the server process after the tests are done
         await serverProcess.kill('SIGINT');
         console.log('Server stopped');
     });
