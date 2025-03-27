@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 
 const WelcomeMessage = () => {
   const { userName } = useContext(UserContext);
 
-  return (
+  const [isClient, setIsClient] = useState(false);
+  
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
+
+  return isClient ? (
     <div>
       <h1 className="text-4xl font-bold">Sakura Flashcards</h1>
       <p className="mt-3 md:text-lg">
@@ -28,7 +34,7 @@ const WelcomeMessage = () => {
         yourself, and watch your Japanese skills soar! Happy studying!
       </p>
     </div>
-  );
+  ) : null;
 };
 
 export default WelcomeMessage;

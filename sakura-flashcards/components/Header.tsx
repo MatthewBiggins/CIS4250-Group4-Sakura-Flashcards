@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
@@ -20,7 +20,13 @@ const Header = () => {
     auth.setUserId("");
   };
 
-  return (
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return isClient ? (
     <>
       <header className="sticky top-0 p-4 max-sm:py-2 z-40 text-lessonColour bg-lessonLink backdrop-blur border-b border-gray-300/20">
         <nav className="md:container flex max-md:justify-between items-center gap-12">
@@ -100,7 +106,7 @@ const Header = () => {
         {open && <MobileSidebar toggleSidebar={toggleSidebar} />}
       </AnimatePresence>
     </>
-  );
+  ): null;
 };
 
 export default Header;
