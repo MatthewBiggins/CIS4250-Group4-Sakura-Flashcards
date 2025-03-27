@@ -62,7 +62,7 @@ const Header = () => {
             {auth.userName ? (
               // If a user is logged in
               <li className="hover:opacity-60 custom-transition object-left-top">
-                <Link className="link p-2" href="/" onClick={handleLogOut}>
+                <Link id="logout" className="link p-2" href="/" onClick={handleLogOut}>
                   <span className="relative">Log Out</span>
                 </Link>
               </li>
@@ -70,12 +70,12 @@ const Header = () => {
               // else if a user is not logged in
               <>
                 <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link href="/login" className="p-2">
+                  <Link id="login" href="/login" className="p-2">
                     <span className="relative">Login</span>
                   </Link>
                 </li>
                 <li className="hover:opacity-60 custom-transition object-left-top">
-                  <Link href="/sign-up" className="p-2">
+                  <Link id="signup" href="/sign-up" className="p-2">
                     <span className="relative">Create Account</span>
                   </Link>
                 </li>
