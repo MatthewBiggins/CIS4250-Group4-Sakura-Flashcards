@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
 import { FaForward, FaBackward, FaCheck, FaTimes, FaRedo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [displayCards, setDisplayCards] = useState(
     cardData.map((card, index) => ({ ...card, originalIndex: index }))
   );
+  const [secondsPerCard, setSecondsPerCard] = useState<number>(20);
+  const [timer, setTimer] = useState<number>(-1);
   
   const [shouldRandomize, setShouldRandomize] = useState(false);
   
@@ -218,6 +220,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, isFlipped]);
+
+  const handleSecondsPerCardChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSecondsPerCard(+e.target.value);
+  }
 
 const handleResponse = async (isCorrect: boolean) => {
   if (!userId) {
@@ -578,31 +584,59 @@ const handleReviewIncorrect = () => {
           style={{ width: `${progressBar}%` }}
         />
       </div>
-
-      {/* Randomize Flashcards Toggle */}
-      <Button
-        onClick={() => {
-          setShouldRandomize((prev) => !prev);
-        }}
-      >
-        {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
-      </Button>
-
-      {/* Study Mode Toggle */}
-      {studyMode != "mc" && 
+        
+      <div className="relative flex justify-center items-center gap-8">
+        {/* Randomize Flashcards Toggle */}
         <Button
-          onClick={() => {setStudyMode("mc")}}
+          onClick={() => {
+            setShouldRandomize((prev) => !prev);
+          }}
         >
-          Switch To Multiple Choice Mode
+          {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
         </Button>
-      }
-      {studyMode == "mc" && 
-        <Button
-          onClick={() => {setStudyMode("classic")}}
-        >
-          Switch Back To Classic Mode
-        </Button>
-      }
+
+        {/* Study Mode Toggle */}
+        {studyMode != "mc" && 
+          <Button
+            onClick={() => {setStudyMode("mc")}}
+          >
+            Switch To Multiple Choice Mode
+          </Button>
+        }
+        {studyMode == "mc" && 
+          <Button
+            onClick={() => {setStudyMode("classic")}}
+          >
+            Switch Back To Classic Mode
+          </Button>
+        }
+
+        {/*Timed Mode Toggle*/}
+        { timer == -1 &&
+          <>
+            <Button
+              onClick={() => {
+                setTimer(secondsPerCard * cardData.length);
+              }}
+            >
+              Enable Timed Mode
+            </Button>
+            <input
+              type="number"
+              value={secondsPerCard}
+              onChange={handleSecondsPerCardChange}
+              className="w-12"
+            />
+            seconds per card
+          </>
+        }
+        { timer > -1 &&
+          <>
+            {timer} seconds left!
+          </>
+        }
+      </div>
+      
     </div>
   );
 };
