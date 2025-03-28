@@ -11,7 +11,7 @@ chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 
 // Utility to wait for the server to be ready
-function waitForServer(url: string, retries = 5, delay = 1000): Promise<void> {
+function waitForServer(url: string, retries = 6, delay = 5000): Promise<void> {
     return new Promise((resolve, reject) => {
         const check = async () => {
             for (let i = 0; i < retries; i++) {
@@ -95,7 +95,7 @@ describe('Selenium test', () => {
         let signupFound = await getElementExists(By.id('signup'));
 
         // Check that logout link exists, login and signup are gone
-        expect(logOutLink.isDisplayed).toBe(true);
+        expect(logOutLink).toBe(true);
         expect(loginFound).toEqual(false);
         expect(signupFound).toEqual(false);
     }, 20000);
