@@ -26,6 +26,7 @@ type FlashcardProps = {
 const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const router = useRouter();
 
+  const [cardColour, setCardColour] = useState("");
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -51,14 +52,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [studyMode, setStudyMode] = useState('classic');
   const [answers, setAnswers] = useState(new Array<String>());
 
-  // tailwind colours
-  const themeWrapper = document.querySelector(".dark, .light");
-  let rawCardColour;
-  if (themeWrapper) {
-    const themeStyles = getComputedStyle(themeWrapper);
-    rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
-  }
-  const cardColour = `hsl(${rawCardColour})`;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // tailwind colours
+      const themeWrapper = document.querySelector(".dark, .light");
+      let rawCardColour;
+      if (themeWrapper) {
+        const themeStyles = getComputedStyle(themeWrapper);
+        rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
+      }
+      setCardColour(`hsl(${rawCardColour})`);
+    }
+  }, []);
+  
 
   // Randomize the flashcards
   const shuffleFlashcards = (array: typeof displayCards) => {
