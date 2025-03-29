@@ -137,10 +137,10 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
 
   useEffect(()=>{
     if (timer > -1) {
-      var interval = setInterval((interval)=>{
+      var interval = setInterval(() => {
         setTimer(timer - 1);
-        clearInterval(interval);
       }, 1000)
+      return () => clearInterval(interval);
     }
   }, [timer])
 
