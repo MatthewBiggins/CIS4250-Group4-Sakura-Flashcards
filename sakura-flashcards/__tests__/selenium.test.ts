@@ -11,7 +11,7 @@ chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 
 // Utility to wait for the server to be ready
-function waitForServer(url: string, retries = 6, delay = 5000): Promise<void> {
+function waitForServer(url: string, retries = 20, delay = 1000): Promise<void> {
     return new Promise((resolve, reject) => {
         const check = async () => {
             for (let i = 0; i < retries; i++) {
@@ -36,9 +36,19 @@ describe('Selenium test', () => {
     let driver: WebDriver;
     let serverProcess: any;
 
-    async function getElementExists(locator: Locator) {
-        let elements = await driver.findElements(locator);
-        return elements.length > 0;
+    async function getElementExists(locator: Locator, timeout: number = -1) {
+
+        if (timeout > 0){
+            try {
+                await driver.wait(until.elementLocated(locator), timeout);
+                return true;
+            } catch (e){
+                return false;
+            }
+        } else {
+            let elements = await driver.findElements(locator);
+            return elements.length > 0;
+        }
     }
 
     async function login() {
@@ -82,20 +92,22 @@ describe('Selenium test', () => {
 
     it('Load page', async () => {
         await driver.get('http://localhost:3000/');
-        await driver.findElement(By.id('login'));
-        await driver.findElement(By.id('signup'));
+        
+        let loginFound = await getElementExists(By.id('login'), 5000);
+        let signupFound = await getElementExists(By.id('signup'));
+        expect(loginFound).toBe(true);
+        expect(signupFound).toBe(true);
     }, 20000);
 
     it('Login and verify redirection status code 200', async () => {
         await login();
 
-        const logOutLink = await driver.findElement(By.id('logout'));
-        
+        let logOutFound = await getElementExists(By.id('logout'), 5000);
         let loginFound = await getElementExists(By.id('login'));
         let signupFound = await getElementExists(By.id('signup'));
 
         // Check that logout link exists, login and signup are gone
-        expect(logOutLink).toBe(true);
+        expect(logOutFound).toBe(true);
         expect(loginFound).toEqual(false);
         expect(signupFound).toEqual(false);
     }, 20000);
@@ -105,10 +117,11 @@ describe('Selenium test', () => {
         
         await driver.get('http://localhost:3000/');
         
+        await driver.wait(until.elementLocated(By.id('logout')), 5000);
         let logoutButton = await driver.findElement(By.id('logout'));
         await logoutButton.click();
         
-        let loginFound = await getElementExists(By.id('login'));
+        let loginFound = await getElementExists(By.id('login'), 5000);
         let signupFound = await getElementExists(By.id('signup'));
         let logoutFound = await getElementExists(By.id('logout'));
         
