@@ -17,6 +17,6 @@ export default {
         '/dist/',                 // Skip transformation of files in dist
         '.*\\.test\\.js$',        // Skip transformation of files that match `.test.js` pattern
       ],
-    moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'json', 'node'],
   };
   
