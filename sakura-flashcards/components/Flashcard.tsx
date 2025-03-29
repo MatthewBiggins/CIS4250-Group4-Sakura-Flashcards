@@ -142,6 +142,15 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     createAnswers();
   }, [cardBack])
 
+  useEffect(()=>{
+    if (timer > -1) {
+      var interval = setInterval(() => {
+        setTimer(timer - 1);
+      }, 1000)
+      return () => clearInterval(interval);
+    }
+  }, [timer])
+
   useEffect(() => {
     if (!isReviewMode) {
       setDisplayCards(cardData.map((card, index) => ({ ...card, originalIndex: index })));
@@ -632,7 +641,7 @@ const handleReviewIncorrect = () => {
               type="number"
               value={secondsPerCard}
               onChange={handleSecondsPerCardChange}
-              className="w-12"
+              className="w-12 -mr-6 -ml-4"
             />
             seconds per card
           </>
