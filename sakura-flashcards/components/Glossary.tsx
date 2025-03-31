@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useState, MouseEvent } from "react";
 import UserContext from "@/components/context/UserContext";
 import { genkiData } from "@/data";
-import Sidebar from "@/components/glossary/SideBar";
+// import Sidebar from "@/components/glossary/SideBar";
 
 // Type definitions
 interface Card {
@@ -89,8 +89,68 @@ export default function Glossary() {
   };
 
   return (
-    <div className="flex">
-      <div className="flex-1 p-4">
+    <div className="flex flex-col">
+      {/* Filters Section */}
+      <div className="p-4 border-b border-gray-200 bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto space-y-4">
+          {/* Study Sets Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Study Sets:</label>
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={handleAllStudySetsChange}
+                className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                  allStudySetsChecked
+                    ? 'bg-violet-400 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All Study Sets
+              </button>
+              {allStudySets.map((setTitle) => (
+                <button
+                  key={setTitle}
+                  onClick={() => handleStudySetChange(setTitle)}
+                  className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                    checkedStudySets[setTitle]
+                      ? 'bg-violet-400 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {setTitle}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lessons Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Lessons:</label>
+            <div className="flex flex-wrap gap-4">
+              {typedGenkiData
+                .filter(studySet => checkedStudySets[studySet.name])
+                .flatMap(studySet =>
+                  studySet.data.map(lesson => (
+                    <button
+                      key={lesson.lessonTitle}
+                      onClick={() => handleLessonChange(lesson.lessonTitle)}
+                      className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                        checkedLesson === lesson.lessonTitle
+                          ? 'bg-violet-400 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {lesson.lessonTitle}
+                    </button>
+                  ))
+                )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content (keep existing content rendering) */}
+      <div className="flex-1 p-4 max-w-7xl mx-auto w-full">
         {typedGenkiData
           .filter((studySet) => checkedStudySets[studySet.name])
           .map((studySet, i) => {
@@ -111,7 +171,7 @@ export default function Glossary() {
                         return (
                           <div key={k}>
                             <h4
-                              className="text-base font-medium mb-2 flex items-center cursor-pointer"
+                              className="text-base font-medium mb-2 flex items-center cursor-pointer hover:text-violet-400 transition-colors"
                               onClick={() => handleUnitToggle(unitId)}
                             >
                               {unit.title}
@@ -127,7 +187,7 @@ export default function Glossary() {
                                   return (
                                     <div
                                       key={l}
-                                      className="border rounded-lg shadow-sm cursor-pointer h-32 flex items-center justify-center text-center p-2"
+                                      className="border rounded-lg shadow-sm cursor-pointer h-32 flex items-center justify-center text-center p-2 hover:border-violet-400 transition-colors"
                                       onClick={() => handleCardFlip(cardId)}
                                     >
                                       <div className="w-full h-full flex items-center justify-center">
@@ -148,17 +208,6 @@ export default function Glossary() {
             );
           })}
       </div>
-
-      <Sidebar
-        allStudySets={allStudySets}
-        checkedStudySets={checkedStudySets}
-        handleStudySetChange={handleStudySetChange}
-        allStudySetsChecked={allStudySetsChecked}
-        handleAllStudySetsChange={handleAllStudySetsChange}
-        checkedLesson={checkedLesson}
-        handleLessonChange={handleLessonChange}
-        genkiData={typedGenkiData}
-      />
     </div>
   );
 }
