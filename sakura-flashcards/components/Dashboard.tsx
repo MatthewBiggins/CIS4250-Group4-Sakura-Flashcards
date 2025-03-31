@@ -86,6 +86,11 @@ export default function Dashboard() {
   const UserData = useContext(UserContext);
   const router = useRouter();
   const [progress, setProgress] = useState<TStudySetProgress[]>([]);
+  const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+      setIsClient(true);
+  }, []);
+
 
   useEffect(() => {
     if (UserData.userName === "") {
@@ -110,7 +115,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="text-4xl font-bold">
-        Welcome back, <span className="text-violet-400">{UserData.userName}</span>!
+        Welcome back<span>{isClient && UserData.userName ? ", " + UserData.userName : ""}</span>!
       </h1>
       {progress.length > 0 ? (
         // Map through genkiData and display study set progress

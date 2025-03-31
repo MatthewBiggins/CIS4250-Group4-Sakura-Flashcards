@@ -37,7 +37,7 @@ export default function StudySetProgress(props: ProgressProps) {
   return (
     <div id={props.name} className="my-5">
       <div 
-        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+        className="flex items-center gap-2 cursor-pointer hover:bg-lessonLink p-2 rounded"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {isExpanded ? (
