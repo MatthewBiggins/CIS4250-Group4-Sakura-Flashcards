@@ -26,6 +26,7 @@ type FlashcardProps = {
 const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const router = useRouter();
 
+  const [cardColour, setCardColour] = useState("");
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -53,14 +54,20 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   const [studyMode, setStudyMode] = useState('classic');
   const [answers, setAnswers] = useState(new Array<String>());
 
-  // tailwind colours
-  const themeWrapper = document.querySelector(".dark, .light");
-  let rawCardColour;
-  if (themeWrapper) {
-    const themeStyles = getComputedStyle(themeWrapper);
-    rawCardColour = themeStyles.getPropertyValue("--lessonLink-hover").trim();
-  }
-  const cardColour = `hsl(${rawCardColour})`;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // tailwind colours
+      const themeWrapper = document.querySelector(".dark, .light");
+      let rawCardColour;
+      if (themeWrapper) {
+        const themeStyles = getComputedStyle(themeWrapper);
+        rawCardColour = themeStyles.getPropertyValue("--lessonLink").trim();
+      }
+      setCardColour(`hsl(${rawCardColour})`);
+    }
+  }, []);
+  
 
   // Randomize the flashcards
   const shuffleFlashcards = (array: typeof displayCards) => {
@@ -482,7 +489,7 @@ const handleReviewIncorrect = () => {
 </motion.div>
 
           {/* Flashcard Back */}
-          <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink-hover rounded-lg p-4 flex justify-center items-center">
+          <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink rounded-lg p-4 flex justify-center items-center">
             <div className="text-3xl sm:text-4xl">{cardBack}</div>
           </div>
         </motion.div>
@@ -541,7 +548,7 @@ const handleReviewIncorrect = () => {
                       variant="ghost"
                       size="lg"
                       key={answer.valueOf()}
-                      className="hover:bg-lessonLink bg-lessonLink-hover"
+                      className="hover:bg-lessonLink-hover bg-lessonLink"
                       onClick={() => {
                         handleResponse(cardBack.valueOf() == answer.valueOf());
                       }}
@@ -587,7 +594,7 @@ const handleReviewIncorrect = () => {
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-lessonLink-hover h-2 w-full rounded-2xl">
+      <div className="bg-lessonLink h-2 w-full rounded-2xl">
         <div
           className="h-full bg-violet-500 rounded-2xl transition-all duration-300"
           style={{ width: `${progressBar}%` }}
@@ -600,6 +607,7 @@ const handleReviewIncorrect = () => {
           onClick={() => {
             setShouldRandomize((prev) => !prev);
           }}
+          className='bg-lessonLink hover:bg-lessonLink-hover text-textColour'
         >
           {shouldRandomize ? "Un-randomize" : "Randomize"} Flashcards
         </Button>
@@ -608,6 +616,7 @@ const handleReviewIncorrect = () => {
         {studyMode != "mc" && 
           <Button
             onClick={() => {setStudyMode("mc")}}
+            className='bg-lessonLink hover:bg-lessonLink-hover text-textColour'
           >
             Switch To Multiple Choice Mode
           </Button>
@@ -615,6 +624,7 @@ const handleReviewIncorrect = () => {
         {studyMode == "mc" && 
           <Button
             onClick={() => {setStudyMode("classic")}}
+            className='bg-lessonLink hover:bg-lessonLink-hover text-textColour'
           >
             Switch Back To Classic Mode
           </Button>
@@ -627,6 +637,7 @@ const handleReviewIncorrect = () => {
               onClick={() => {
                 setTimer(secondsPerCard * cardData.length);
               }}
+              className='bg-lessonLink hover:bg-lessonLink-hover text-textColour'
             >
               Enable Timed Mode
             </Button>
@@ -634,7 +645,7 @@ const handleReviewIncorrect = () => {
               type="number"
               value={secondsPerCard}
               onChange={handleSecondsPerCardChange}
-              className="w-12 -mr-6 -ml-4"
+              className="w-12 -mr-6 -ml-4 bg-lessonLink hover:bg-lessonLink-hover text-textColour"
             />
             seconds per card
           </>

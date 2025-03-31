@@ -24,12 +24,12 @@ export default function Home() {
                     key={item.name}
                     className="block space-y-1.5 rounded-lg px-5 py-3 bg-lessonLink hover:bg-lessonLink-hover custom-transition"
                   >
-                    <h3 className="text-lessonColour text-lg sm:text-xl font-bold">
+                    <h3 className="text-textColour text-lg sm:text-xl font-bold">
                       {item.name}
                     </h3>
 
                     {item.description && (
-                      <p className="text-lessonColour line-clamp-3 font-semibold">
+                      <p className="text-textColour line-clamp-3 font-semibold">
                         {item.description}
                       </p>
                     )}

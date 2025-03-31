@@ -59,7 +59,6 @@ const config = {
           DEFAULT: "hsl(var(--lessonLink))",
           hover: "hsl(var(--lessonLink-hover))",
         },
-        lessonColour: "hsl(var(--lessonColour))",
         button: {
           DEFAULT: "hsl(var(--button))",
           hover: "hsl(var(--button-hover))",
