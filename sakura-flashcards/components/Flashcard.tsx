@@ -143,11 +143,13 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
   }, [cardBack])
 
   useEffect(()=>{
-    if (timer > -1) {
+    if (timer > 0) {
       var interval = setInterval(() => {
         setTimer(timer - 1);
       }, 1000)
       return () => clearInterval(interval);
+    } else if (timer == 0) {
+      setShowCompletionPopup(true);
     }
   }, [timer])
 
@@ -391,7 +393,7 @@ const handleReviewIncorrect = () => {
         {showCompletionPopup && (
   <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
     <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
-      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Lesson Complete!</h3>
+      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">{timer == 0 ? "Time's Up!" : "Lesson Complete!"}</h3>
       <div className="mb-4">
         <p className="text-lg text-green-500">Correct: {correctCount}</p>
         <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
@@ -421,9 +423,24 @@ const handleReviewIncorrect = () => {
             </Button>
           </div>
         </>
-      ) : (
+      ) : ( correctCount == displayCards.length ?
         <>
           <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
+          <Button 
+            onClick={() => {
+              const studySet = index[0] === 0 ? '1' : '2';
+              const lessonNumber = index[0] === 0 
+                ? index[1] + 1
+                : index[1] + 13;
+              router.push(`/studysets/genki-${studySet}`);
+            }}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+          >
+            Continue
+          </Button>
+        </> :
+        <>
+          <p className="mb-6 text-neutral-300">At least none of the cards you did were wrong...</p>
           <Button 
             onClick={() => {
               const studySet = index[0] === 0 ? '1' : '2';
