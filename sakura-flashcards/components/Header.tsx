@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useState, useEffect } from "react";
-import { Menu } from "lucide-react";
+import { Menu, User, UserPlus, LogOut, Home, BookOpen, LayoutDashboard } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
 import MobileSidebar from "@/components/MobileSidebar";
@@ -53,17 +53,18 @@ const Header = () => {
             {navLinks.map((link) => (
               <li key={link.key} className="hover:opacity-60 custom-transition">
                 <Link
-                  href={
-                    link.studySetId
-                      ? `${link.href}/${link.studySetId}`
-                      : link.href
-                  }
-                  className="p-2"
+                  href={link.studySetId ? `${link.href}/${link.studySetId}` : link.href}
+                  className="p-2 flex items-center gap-2"
                 >
+                  {/* Add icons based on link text */}
+                  {link.text === 'Home' && <Home className="w-5 h-5" />}
+                  {link.text === 'Dashboard' && <LayoutDashboard className="w-5 h-5" />}
+                  {link.text === 'Glossary' && <BookOpen className="w-5 h-5" />}
                   <span className="relative">{link.text}</span>
                 </Link>
               </li>
             ))}
+
             <div className="flex flex-grow"></div>
             {isClient ? (
               auth.userName ? (
