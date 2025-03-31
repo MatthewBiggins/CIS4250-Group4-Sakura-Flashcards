@@ -142,6 +142,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     createAnswers();
   }, [cardBack])
 
+  // increment timer for timed study mode
   useEffect(()=>{
     if (timer > 0) {
       var interval = setInterval(() => {
@@ -166,6 +167,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }, 150);
   }, [currentIndex]);
 
+  // show popup depending on if its review mode
   useEffect(() => {
     if (isReviewMode) {
       const shouldShow = currentIndex === total - 1 && answeredIndices.has(currentIndex);
@@ -176,6 +178,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     }
   }, [currentIndex, total, answeredIndices, isReviewMode]);
 
+  // handle card flip animation
   const handleFlip = async () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -243,115 +246,116 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
     setSecondsPerCard(+e.target.value);
   }
 
-const handleResponse = async (isCorrect: boolean) => {
-  if (!userId) {
-    console.error("User not authenticated");
-    return;
-  }
-
-  const originalIndex = displayCards[currentIndex].originalIndex;
-
-  if (!isCorrect) {
-    setIncorrectIndices(prev => {
-      const newSet = new Set(prev);
-      newSet.add(originalIndex);
-      return newSet;
-    });
-    
-  } else {
-    setIncorrectIndices(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(originalIndex);
-      return newSet;
-    });
-  }
-
-  if (isCorrect) {
-    setCorrectCount(prev => prev + 1);
-  } else {
-    setIncorrectCount(prev => prev + 1);
-  }
-
-  setAnsweredIndices(prev => {
-    const newSet = new Set(prev);
-    newSet.add(currentIndex);
-    return newSet;
-  });
-
-  // Always update UI and progress
-  if (studyMode != "mc") {
-    setIsFlipped(false);
-    handleNext();
-  }
-  setLastAction(isCorrect ? 'correct' : 'incorrect');
-
-  
-  if (!isReviewMode) try {
-    // 1. Construct document reference
-    const studySet = index[0] === 0 ? "studySetI" : "studySetII";
-    const lessonNumber = index[0] === 0 ? index[1] : index[1] + 13;
-    const docRef = doc(db, "users", userId, studySet, `Lesson-${lessonNumber}`);
-
-    // 2. Get current document data
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      throw new Error("Document does not exist");
+  const handleResponse = async (isCorrect: boolean) => {
+    if (!userId) {
+      console.error("User not authenticated");
+      return;
     }
 
-    // 3. Verify and maintain structure
-    const currentData = docSnap.data();
-    const updatedUnits = currentData.units.map((unit: any, unitIndex: number) => {
-      if (unitIndex !== index[2]) return unit;
+    const originalIndex = displayCards[currentIndex].originalIndex;
+
+    if (!isCorrect) {
+      setIncorrectIndices(prev => {
+        const newSet = new Set(prev);
+        newSet.add(originalIndex);
+        return newSet;
+      });
       
-      // Clone the cards array to avoid mutation
-      const cards = unit.cards?.map((card: TCardProgress, cardIndex: number) => {
-        if (cardIndex !== currentIndex) return card;
-        return {
-          correct: isCorrect ? card.correct + 1 : card.correct,
-          incorrect: !isCorrect ? card.incorrect + 1 : card.incorrect
-        };
-      }) || [];
-      
-      return { ...unit, cards };
+    } else {
+      setIncorrectIndices(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(originalIndex);
+        return newSet;
+      });
+    }
+    // increment number of correct answers
+    if (isCorrect) {
+      setCorrectCount(prev => prev + 1);
+    } else {
+      setIncorrectCount(prev => prev + 1);
+    }
+
+    setAnsweredIndices(prev => {
+      const newSet = new Set(prev);
+      newSet.add(currentIndex);
+      return newSet;
     });
 
-    // 4. Update the entire document with merged data
-    await setDoc(docRef, {
-      units: updatedUnits
-    }, { merge: true });
+    // Always update UI and progress
+    if (studyMode != "mc") {
+      setIsFlipped(false);
+      handleNext();
+    }
+    setLastAction(isCorrect ? 'correct' : 'incorrect');
 
-    // 5. Update local state
-    // if (progress.length > 0) {
-    //   const unitMap = progress[index[0]][index[1]][index[2]];
-    //   const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
-    //   currentCounts[isCorrect ? "correct" : "incorrect"]++;
-    //   unitMap.set(originalIndex, currentCounts);
-    // }
-  } catch (error) {
-    console.error("Update failed:", error);
-  }
-};
+    
+    if (!isReviewMode) try {
+      // 1. Construct document reference
+      const studySet = index[0] === 0 ? "studySetI" : "studySetII";
+      const lessonNumber = index[0] === 0 ? index[1] : index[1] + 13;
+      const docRef = doc(db, "users", userId, studySet, `Lesson-${lessonNumber}`);
 
-const handleReviewIncorrect = () => {
-  if (incorrectIndices.size === 0) {
-    alert('No incorrect cards to review!');
-    return;
-  }
-  
-  const incorrectCards = cardData
-    .filter((_, index) => incorrectIndices.has(index))
-    .map((card, index) => ({ ...card, originalIndex: index }));
-  
-  setDisplayCards(incorrectCards);
-  setCurrentIndex(0);
-  setProgressBar(0);
-  setIsReviewMode(true);
-  setShowCompletionPopup(false);
-  // Reset counts for review session
-  setCorrectCount(0);
-  setIncorrectCount(0);
-  setAnsweredIndices(new Set());
-};
+      // 2. Get current document data
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        throw new Error("Document does not exist");
+      }
+
+      // 3. Verify and maintain structure
+      const currentData = docSnap.data();
+      const updatedUnits = currentData.units.map((unit: any, unitIndex: number) => {
+        if (unitIndex !== index[2]) return unit;
+        
+        // Clone the cards array to avoid mutation
+        const cards = unit.cards?.map((card: TCardProgress, cardIndex: number) => {
+          if (cardIndex !== currentIndex) return card;
+          return {
+            correct: isCorrect ? card.correct + 1 : card.correct,
+            incorrect: !isCorrect ? card.incorrect + 1 : card.incorrect
+          };
+        }) || [];
+        
+        return { ...unit, cards };
+      });
+
+      // 4. Update the entire document with merged data
+      await setDoc(docRef, {
+        units: updatedUnits
+      }, { merge: true });
+
+      // 5. Update local state
+      // if (progress.length > 0) {
+      //   const unitMap = progress[index[0]][index[1]][index[2]];
+      //   const currentCounts = unitMap.get(originalIndex) || { correct: 0, incorrect: 0 };
+      //   currentCounts[isCorrect ? "correct" : "incorrect"]++;
+      //   unitMap.set(originalIndex, currentCounts);
+      // }
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
+  //configure lesson review popup 
+  const handleReviewIncorrect = () => {
+    if (incorrectIndices.size === 0) {
+      alert('No incorrect cards to review!');
+      return;
+    }
+    
+    const incorrectCards = cardData
+      .filter((_, index) => incorrectIndices.has(index))
+      .map((card, index) => ({ ...card, originalIndex: index }));
+    
+    setDisplayCards(incorrectCards);
+    setCurrentIndex(0);
+    setProgressBar(0);
+    setIsReviewMode(true);
+    setShowCompletionPopup(false);
+    // Reset counts for review session
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setAnsweredIndices(new Set());
+  };
 
 
   useEffect(() => {
@@ -365,50 +369,15 @@ const handleReviewIncorrect = () => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-
-{showReviewCompletionPopup && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
-      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Review Complete!</h3>
-      <div className="mb-4">
-        <p className="text-lg text-green-500">Correct: {correctCount}</p>
-        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
-      </div>
-      <Button 
-        onClick={() => {
-          const studySet = index[0] === 0 ? '1' : '2';
-          const lessonNumber = index[0] === 0 
-            ? index[1] + 1
-            : index[1] + 13;
-          router.push(`/studysets/genki-${studySet}`);
-        }}
-        className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 w-full"
-      >
-        Return to Study Set
-      </Button>
-    </div>
-  </div>
-)}
-
-        {showCompletionPopup && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
-      <h3 className="text-2xl mb-4 font-semibold text-neutral-100">{timer == 0 ? "Time's Up!" : "Lesson Complete!"}</h3>
-      <div className="mb-4">
-        <p className="text-lg text-green-500">Correct: {correctCount}</p>
-        <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
-      </div>
-      
-      {incorrectIndices.size > 0 ? (
-        <>
-          <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
-          <div className="flex justify-center gap-4">
-            <Button 
-              onClick={handleReviewIncorrect}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-            >
-              <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
-            </Button>
+      {/* popup after review incorrect cards */}
+      {showReviewCompletionPopup && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+            <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Review Complete!</h3>
+            <div className="mb-4">
+              <p className="text-lg text-green-500">Correct: {correctCount}</p>
+              <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
+            </div>
             <Button 
               onClick={() => {
                 const studySet = index[0] === 0 ? '1' : '2';
@@ -417,47 +386,82 @@ const handleReviewIncorrect = () => {
                   : index[1] + 13;
                 router.push(`/studysets/genki-${studySet}`);
               }}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 w-full"
             >
-              Continue
+              Return to Study Set
             </Button>
           </div>
-        </>
-      ) : ( correctCount == displayCards.length ?
-        <>
-          <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
-          <Button 
-            onClick={() => {
-              const studySet = index[0] === 0 ? '1' : '2';
-              const lessonNumber = index[0] === 0 
-                ? index[1] + 1
-                : index[1] + 13;
-              router.push(`/studysets/genki-${studySet}`);
-            }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-          >
-            Continue
-          </Button>
-        </> :
-        <>
-          <p className="mb-6 text-neutral-300">At least none of the cards you did were wrong...</p>
-          <Button 
-            onClick={() => {
-              const studySet = index[0] === 0 ? '1' : '2';
-              const lessonNumber = index[0] === 0 
-                ? index[1] + 1
-                : index[1] + 13;
-              router.push(`/studysets/genki-${studySet}`);
-            }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-          >
-            Continue
-          </Button>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
+
+      {/* lesson completion popup */}
+      {showCompletionPopup && (
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
+          <h3 className="text-2xl mb-4 font-semibold text-neutral-100">{timer == 0 ? "Time's Up!" : "Lesson Complete!"}</h3>
+          <div className="mb-4">
+            <p className="text-lg text-green-500">Correct: {correctCount}</p>
+            <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
+          </div>
+          {incorrectIndices.size > 0 ? (
+            <>
+              <p className="mb-6 text-neutral-300">Would you like to review incorrect cards?</p>
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={handleReviewIncorrect}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                >
+                  <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const studySet = index[0] === 0 ? '1' : '2';
+                    const lessonNumber = index[0] === 0 
+                      ? index[1] + 1
+                      : index[1] + 13;
+                    router.push(`/studysets/genki-${studySet}`);
+                  }}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                >
+                  Continue
+                </Button>
+              </div>
+            </>
+          ) : ( correctCount == displayCards.length ?
+            <>
+              <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
+              <Button 
+                onClick={() => {
+                  const studySet = index[0] === 0 ? '1' : '2';
+                  const lessonNumber = index[0] === 0 
+                    ? index[1] + 1
+                    : index[1] + 13;
+                  router.push(`/studysets/genki-${studySet}`);
+                }}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+              >
+                Continue
+              </Button>
+            </> :
+            <>
+              <p className="mb-6 text-neutral-300">At least none of the cards you did were wrong...</p>
+              <Button 
+                onClick={() => {
+                  const studySet = index[0] === 0 ? '1' : '2';
+                  const lessonNumber = index[0] === 0 
+                    ? index[1] + 1
+                    : index[1] + 13;
+                  router.push(`/studysets/genki-${studySet}`);
+                }}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+              >
+                Continue
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+      )}
 
       <div className="flip-card w-full h-[328px] max-w-[816px] sm:h-[428px]" onClick={() => {if (studyMode != 'mc') {handleFlip()}}}>
         <motion.div
@@ -469,41 +473,43 @@ const handleReviewIncorrect = () => {
         >
           {/* Flashcard Front */}
           <motion.div
-  className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
-  initial={{ backgroundColor: cardColour }}
-  animate={{
-    backgroundColor:
-      lastAction === "correct"
-        ? "rgba(34, 197, 94, 0.2)"
-        : lastAction === "incorrect"
-        ? "rgba(239, 68, 68, 0.2)"
-        : cardColour,
-  }}
-  transition={{ duration: 0.3 }}
->
-  <AnimatePresence>
-    {lastAction && (
-      <motion.div
-        key={lastAction}
-        className="absolute inset-0 flex items-center justify-center"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 1.2 }}
-        onAnimationComplete={() => {
-          if (studyMode == "mc") {
-            setIsFlipped(true);
-          }
-        }}
-        transition={{ duration: 0.5, type: 'spring' }}
-      >
-        <div className={`text-6xl font-bold ${lastAction === 'correct' ? 'text-green-500' : 'text-red-500'} bg-black/50 p-4 rounded-xl`}>
-          {lastAction === 'correct' ? 'Correct!' : 'Incorrect!'}
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-  <div className="text-3xl sm:text-4xl">{currentCard.frontSide}</div>
-</motion.div>
+            className="flip-card-front w-[100%] h-[100%] rounded-lg p-4 flex justify-center items-center"
+            initial={{ backgroundColor: cardColour }}
+            animate={{
+              backgroundColor:
+                lastAction === "correct"
+                  ? "rgba(34, 197, 94, 0.2)"
+                  : lastAction === "incorrect"
+                  ? "rgba(239, 68, 68, 0.2)"
+                  : cardColour,
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <AnimatePresence>
+              {lastAction && (
+                <motion.div
+                  key={lastAction}
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.2 }}
+                  onAnimationComplete={() => {
+                    if (studyMode == "mc") {
+                      setIsFlipped(true);
+                    }
+                  }}
+                  transition={{ duration: 0.5, type: 'spring' }}
+                >
+                  <div className={`text-6xl font-bold ${lastAction === 'correct' ? 'text-green-500' : 'text-red-500'} bg-black/50 p-4 rounded-xl`}>
+                    {lastAction === 'correct' ? 'Correct!' : 'Incorrect!'}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="text-3xl sm:text-4xl">
+              {currentCard.frontSide}
+            </div>
+          </motion.div>
 
           {/* Flashcard Back */}
           <div className="flip-card-back w-[100%] h-[100%] bg-lessonLink rounded-lg p-4 flex justify-center items-center">
@@ -511,7 +517,7 @@ const handleReviewIncorrect = () => {
           </div>
         </motion.div>
       </div>
-      
+        
       {/* Correct/Incorrect Buttons */}
       <div className="h-20">
         {studyMode != "mc" &&
@@ -595,8 +601,8 @@ const handleReviewIncorrect = () => {
           </Button>
           {/* Current Card Index */}
           <div className="absolute">
-  {currentIndex + 1} / {displayCards.length} {/* Changed from cardData.length to displayCards.length */}
-</div>
+            {currentIndex + 1} / {displayCards.length} {/* Changed from cardData.length to displayCards.length */}
+          </div>
           {/* Next Button */}
           <Button
             variant="ghost"
@@ -638,6 +644,7 @@ const handleReviewIncorrect = () => {
             Switch To Multiple Choice Mode
           </Button>
         }
+
         {studyMode == "mc" && 
           <Button
             onClick={() => {setStudyMode("classic")}}
@@ -673,7 +680,6 @@ const handleReviewIncorrect = () => {
           </>
         }
       </div>
-      
     </div>
   );
 };
