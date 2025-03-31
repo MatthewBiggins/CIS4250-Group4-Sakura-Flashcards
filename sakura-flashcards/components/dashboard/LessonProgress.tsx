@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FaCaretDown, FaCaretRight } from 'react-icons/fa';
 import { IUnitData, TLessonProgress } from "@/constants";
 import UnitProgress, {
   countUnitProgress,
@@ -29,14 +30,16 @@ export default function LessonProgress(props: ProgressProps) {
   let total = props.data.reduce((acc, unit) => acc + unit.items.length, 0);
 
   return (
-    <div id={props.name} className="rounded-lg bg-globalBackground my-4 p-4">
+    <div id={props.name} className="rounded-lg bg-globalBackground my-4 p-4 hover:bg-gray-100">
       <div
         className="flex items-center gap-2 cursor-pointer mb-2"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <span className="transform transition-transform">
-          {isExpanded ? '▼' : '▶'}
-        </span>
+        {isExpanded ? (
+          <FaCaretDown className="text-lg" />
+        ) : (
+          <FaCaretRight className="text-lg" />
+        )}
         <h3 className="text-2xl font-bold">{props.name}</h3>
       </div>
       

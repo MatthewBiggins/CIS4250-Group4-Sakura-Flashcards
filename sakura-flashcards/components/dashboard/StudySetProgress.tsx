@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FaCaretDown, FaCaretRight } from 'react-icons/fa'; 
 import { ILessonData, TStudySetProgress } from "@/constants";
 import LessonProgress, {
   countLessonProgress,
@@ -39,9 +40,11 @@ export default function StudySetProgress(props: ProgressProps) {
         className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <span className="transform transition-transform">
-          {isExpanded ? '▼' : '▶'}
-        </span>
+        {isExpanded ? (
+          <FaCaretDown className="text-xl" />
+        ) : (
+          <FaCaretRight className="text-xl" />
+        )}
         <h2 className="text-3xl font-bold">{props.name}</h2>
       </div>
       

@@ -109,7 +109,9 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold">{UserData.userName}</h1>
+      <h1 className="text-4xl font-bold">
+        Welcome back, <span className="text-violet-400">{UserData.userName}</span>!
+      </h1>
       {progress.length > 0 ? (
         // Map through genkiData and display study set progress
         genkiData.map((studySet, i) => {
