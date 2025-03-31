@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ILessonData, TStudySetProgress } from "@/constants";
 import LessonProgress, {
   countLessonProgress,
@@ -22,6 +23,8 @@ function countSetProgress(data: TStudySetProgress) {
 }
 
 export default function StudySetProgress(props: ProgressProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   // calculate the total flashcards in the study set
   let total = 0;
   props.progress.forEach((lesson) => {
@@ -32,23 +35,33 @@ export default function StudySetProgress(props: ProgressProps) {
 
   return (
     <div id={props.name} className="my-5">
-      <h2 className="text-3xl font-bold">{props.name}</h2>
-      {/* Study Set Progress */}
-      <ProgressBar
-        showLabel={true}
-        progress={(countSetProgress(props.progress) / total) * 100}
-      />
-      {/* Lessons in Study Set */}
-      {props.progress.map((lesson, i) => {
-        return (
-          <LessonProgress
-            key={props.data[i].lessonTitle}
-            name={props.data[i].lessonTitle}
-            progress={lesson}
-            data={props.data[i].units}
+      <div 
+        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <span className="transform transition-transform">
+          {isExpanded ? '▼' : '▶'}
+        </span>
+        <h2 className="text-3xl font-bold">{props.name}</h2>
+      </div>
+      
+      {isExpanded && (
+        <>
+          <ProgressBar
+            showLabel={true}
+            progress={(countSetProgress(props.progress) / total) * 100}
           />
-        );
-      })}
+          {/* Lessons in Study Set */}
+          {props.progress.map((lesson, i) => (
+            <LessonProgress
+              key={props.data[i].lessonTitle}
+              name={props.data[i].lessonTitle}
+              progress={lesson}
+              data={props.data[i].units}
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 }
