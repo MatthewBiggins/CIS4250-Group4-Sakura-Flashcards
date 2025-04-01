@@ -5,11 +5,10 @@ import { exec, spawn } from 'child_process';
 import axios from 'axios';
 import { doc, getDoc, deleteDoc, collection, query, where, getDocs, and, addDoc, serverTimestamp } from 'firebase/firestore';
 import db from "../firebase/configuration";
-import { hash } from "../utils/hash";
 
 const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--no-sandbox');
-// chromeOptions.addArguments('--headless');
+chromeOptions.addArguments('--headless');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 
 // Utility to wait for the server to be ready
@@ -236,7 +235,7 @@ describe('Selenium test', () => {
             await driver.wait(until.urlIs('http://localhost:3000/dashboard'), 5000);
             await getElementExists(By.id("Useful Expressions (In the Classroom)"), 5000);
             await driver.quit();
-        })
+        }, 120000)
 
 
         it('Dashboard cannot be accessed while logged out', async () => {
@@ -258,7 +257,7 @@ describe('Selenium test', () => {
             
         }, 15000);
 
-        it('Dashboard has no progress when logged in with a new account', async () => {
+        it('Dashboard tracks when a card is flipped', async () => {
             await login(DASHEMAIL, DASHPASSWORD);
 
             await driver.get('http://localhost:3000/studysets/genki-1/lesson-0/hiragana');
@@ -282,6 +281,68 @@ describe('Selenium test', () => {
             expect(await progressPercent.getText()).toEqual("1%");
             
         }, 120000);
+
+        it('Complete lesson with everything correct', async () => {
+            await login(DASHEMAIL, DASHPASSWORD);
+
+            await driver.get('http://localhost:3000/studysets/genki-1/lesson-0/greetings');
+            await getElementExists(By.className("flip-card"), 10000);
+            let flipCard = await driver.findElement(By.className("flip-card"));
+            let cardCounter = await driver.findElement(By.className("absolute"))
+            for (let i = 1; i <= 19; i++){
+                await driver.wait(until.elementTextIs(cardCounter, (i) + " / 19"), 5000)
+                await flipCard.click();
+
+                let correctButton = await driver.findElement(By.id("correct-button"));
+                await correctButton.click();
+                await wait(1000);
+            }
+        }, 240000);
+
+        it('Complete lesson with some incorrect then review incorrect ', async () => {
+            await login(DASHEMAIL, DASHPASSWORD);
+
+            await driver.get('http://localhost:3000/studysets/genki-1/lesson-1/time-hours');
+            await getElementExists(By.className("flip-card"), 10000);
+            let flipCard = await driver.findElement(By.className("flip-card"));
+            let cardCounter = await driver.findElement(By.className("absolute"))
+            for (let i = 1; i <= 13; i++){
+                await driver.wait(until.elementTextIs(cardCounter, (i) + " / 13"), 5000)
+                await flipCard.click();
+
+                let correctButton = await driver.findElement(By.id("correct-button"));
+                let incorrectButton = await driver.findElement(By.id("incorrect-button"));
+                if (i <= 10){
+                    await correctButton.click();
+                } else {
+                    await incorrectButton.click();
+                }
+                await wait(1000);
+            }
+
+            let reviewButton = await driver.findElement(By.id("review-button"));
+            await reviewButton.click();
+            await getElementExists(By.className("flip-card"), 10000);
+            flipCard = await driver.findElement(By.className("flip-card"));
+            cardCounter = await driver.findElement(By.className("absolute"))
+            for (let i = 1; i <= 3; i++){
+                await driver.wait(until.elementTextIs(cardCounter, (i) + " / 3"), 5000)
+                await flipCard.click();
+
+                let correctButton = await driver.findElement(By.id("correct-button"));
+                await correctButton.click();
+                await wait(1000);
+            }
+            
+
+            await driver.get('http://localhost:3000/dashboard');
+            
+            await getElementExists(By.id("New Friends"), 10000);
+            let lessonBox = await driver.findElement(By.id("New Friends"));
+            let progressBox = await lessonBox.findElement(By.id("Time (Hours)"));
+            let progressCount = await progressBox.findElement(By.id("count"));
+            expect(await progressCount.getText()).toEqual("10/13 cards");
+        }, 240000);
 
         afterAll(async () => {
         const usernameSnapshot = await getDocs(dashQuery);

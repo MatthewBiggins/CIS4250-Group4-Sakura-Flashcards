@@ -407,7 +407,7 @@ const handleReviewIncorrect = () => {
               onClick={handleReviewIncorrect}
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
             >
-              <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
+              <FaRedo id="review-button" className="mr-2" /> Review Incorrect ({incorrectIndices.size})
             </Button>
             <Button 
               onClick={() => {
