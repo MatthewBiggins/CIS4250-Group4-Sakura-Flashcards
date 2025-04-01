@@ -77,8 +77,8 @@ export default function Glossary() {
                   onClick={() => handleStudySetChange(setTitle)}
                   className={`px-4 py-2 rounded-full text-sm transition-colors ${
                     selectedStudySet === setTitle
-                      ? 'bg-violet-400 text-white'
-                      : 'bg-lessonLink text-violet-400 hover:bg-lessonLink-hover'
+                      ? 'bg-violet-400'
+                      : 'bg-lessonLink hover:bg-lessonLink-hover'
                   }`}
                 >
                   {setTitle}
@@ -99,8 +99,8 @@ export default function Glossary() {
                     onClick={() => handleLessonChange(lesson.lessonTitle)}
                     className={`px-4 py-2 rounded-full text-sm transition-colors ${
                       selectedLesson === lesson.lessonTitle
-                        ? 'bg-violet-400 text-white'
-                        : 'bg-lessonLink text-violet-400 hover:bg-lessonLink-hover'
+                        ? 'bg-violet-400'
+                        : 'bg-lessonLink hover:bg-lessonLink-hover'
                     }`}
                   >
                     {lesson.lessonTitle}
@@ -129,8 +129,8 @@ export default function Glossary() {
                     onClick={() => handleUnitToggle(unitId)}
                     className={`px-4 py-2 rounded-full text-sm transition-colors mb-2 ${
                       isExpanded 
-                        ? 'bg-violet-400 text-white' 
-                        : 'bg-lessonLink text-violet-400 hover:bg-lessonLink-hover'
+                        ? 'bg-violet-400' 
+                        : 'bg-lessonLink hover:bg-lessonLink-hover'
                     }`}
                   >
                     {unit.title}
