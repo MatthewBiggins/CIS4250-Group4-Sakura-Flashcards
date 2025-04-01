@@ -527,6 +527,7 @@ const handleReviewIncorrect = () => {
             {(isFlipped) && (
               <>
                 <Button
+                  id="incorrect-button"
                   variant="ghost"
                   size="lg"
                   onClick={() => handleResponse(false)}
@@ -535,6 +536,7 @@ const handleReviewIncorrect = () => {
                   <FaTimes className="mr-2" /> Incorrect
                 </Button>
                 <Button
+                  id="correct-button"
                   variant="ghost"
                   size="lg"
                   onClick={() => handleResponse(true)}
