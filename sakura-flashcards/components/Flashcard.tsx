@@ -372,8 +372,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       {/* popup after review incorrect cards */}
       {showReviewCompletionPopup && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
-            <h3 className="text-2xl mb-4 font-semibold text-neutral-100">Review Complete!</h3>
+          <div className="bg-lessonLink p-8 rounded-xl text-center max-w-md border border-zinc-700">
+            <h3 className="text-2xl mb-4 font-semibold">Review Complete!</h3>
             <div className="mb-4">
               <p className="text-lg text-green-500">Correct: {correctCount}</p>
               <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
@@ -397,8 +397,8 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
       {/* lesson completion popup */}
       {showCompletionPopup && (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-        <div className="bg-zinc-800 p-8 rounded-xl text-center max-w-md border border-zinc-700">
-          <h3 className="text-2xl mb-4 font-semibold text-neutral-100">{timer == 0 ? "Time's Up!" : "Lesson Complete!"}</h3>
+        <div className="bg-lessonLink p-8 rounded-xl text-center max-w-md border border-zinc-700">
+          <h3 className="text-2xl mb-4 font-semibold">{timer == 0 ? "Time's Up!" : "Lesson Complete!"}</h3>
           <div className="mb-4">
             <p className="text-lg text-green-500">Correct: {correctCount}</p>
             <p className="text-lg text-red-500">Incorrect: {incorrectCount}</p>
@@ -429,7 +429,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             </>
           ) : ( correctCount == displayCards.length ?
             <>
-              <p className="mb-6 text-neutral-300">Perfect! All answers correct! 🎉</p>
+              <p className="mb-6">Perfect! All answers correct! 🎉</p>
               <Button 
                 onClick={() => {
                   const studySet = index[0] === 0 ? '1' : '2';
