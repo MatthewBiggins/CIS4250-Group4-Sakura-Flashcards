@@ -411,7 +411,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
                   onClick={handleReviewIncorrect}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
                 >
-                  <FaRedo className="mr-2" /> Review Incorrect ({incorrectIndices.size})
+                  <FaRedo id="review-button" className="mr-2" /> Review Incorrect ({incorrectIndices.size})
                 </Button>
                 <Button 
                   onClick={() => {
@@ -533,6 +533,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
             {(isFlipped) && (
               <>
                 <Button
+                  id="incorrect-button"
                   variant="ghost"
                   size="lg"
                   onClick={() => handleResponse(false)}
@@ -541,6 +542,7 @@ const Flashcard = ({ cardData, index }: FlashcardProps) => {
                   <FaTimes className="mr-2" /> Incorrect
                 </Button>
                 <Button
+                  id="correct-button"
                   variant="ghost"
                   size="lg"
                   onClick={() => handleResponse(true)}

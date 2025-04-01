@@ -45,10 +45,10 @@ export default function UnitProgress(props: ProgressProps) {
       className="rounded-lg bg-lessonLink-hover border border-violet-900 p-4 lg:p-6 justify-center text-center w-48"
     >
       <div className="mb-2">
-        <p className="text-2xl font-bold">
+        <p id="percent" className="text-2xl font-bold">
           {((totalCompleted / props.totalFlashcards) * 100).toFixed(0)}%
         </p>
-        <p className="text-sm text-neutral-400">
+        <p id="count" className="text-sm text-neutral-400">
           {totalCompleted}/{props.totalFlashcards} cards
         </p>
       </div>
