@@ -1,15 +1,14 @@
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
-
 import Flashcard from '@/components/Flashcard';
 import { genkiData } from '@/data';
 
 interface FlashcardPageProps {
   params: Promise<{ studySetId: string; lessonId: string; flashcardId: string }>;
-  searchParams?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }
 
-export default async function FlashcardPage({ params, searchParams }: FlashcardPageProps) {
+export default async function FlashcardPage({ params }: FlashcardPageProps) {
   const { studySetId, lessonId, flashcardId } = await params;
   // searchParams can be awaited if needed: const query = await searchParams;
   const studySet = genkiData.filter((set) => set.slug === studySetId)[0];
@@ -35,8 +34,7 @@ export default async function FlashcardPage({ params, searchParams }: FlashcardP
           </Link>
           <h1 className="text-2xl sm:text-4xl font-bold">{unit.title}</h1>
           <p className="font-semibold">
-            Lesson {lesson.lessonNumber}: {lesson.lessonTitle} (
-            {lesson.lessonPages})
+            Lesson {lesson.lessonNumber}: {lesson.lessonTitle} ({lesson.lessonPages})
           </p>
         </div>
 
