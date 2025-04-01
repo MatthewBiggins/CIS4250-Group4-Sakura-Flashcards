@@ -11,6 +11,7 @@ build:
     - npm install  # Install dependencies
   script:
     - npm run build-nolint
+    - npx webdriver-manager update --gecko=false
     - npm run test
   cache:
     paths:
