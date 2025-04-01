@@ -3,9 +3,8 @@ import { FaArrowLeft } from 'react-icons/fa';
 
 import Flashcard from '@/components/Flashcard';
 import { genkiData } from '@/data';
-import { PageProps } from '@/.next/types/app/layout';
 
-interface FlashcardPageProps extends PageProps {
+interface FlashcardPageProps {
   params: {
     studySetId: string;
     lessonId: string;
@@ -13,7 +12,7 @@ interface FlashcardPageProps extends PageProps {
   };
 }
 
-export default function FlashcardPage({ params }: FlashcardPageProps) {
+export default function FlashcardPage({ params }: { params: FlashcardPageProps["params"] }) {
   const { studySetId, lessonId, flashcardId } = params;
   const studySet = genkiData.filter((set) => set.slug === studySetId)[0];
   const lesson = studySet.data.filter((lesson) => lesson.slug === lessonId)[0];
