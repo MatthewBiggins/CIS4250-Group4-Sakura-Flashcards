@@ -3,8 +3,9 @@ import { FaArrowLeft } from 'react-icons/fa';
 
 import Flashcard from '@/components/Flashcard';
 import { genkiData } from '@/data';
+import { PageProps } from '@/.next/types/app/layout';
 
-interface FlashcardPageProps {
+interface FlashcardPageProps extends PageProps {
   params: {
     studySetId: string;
     lessonId: string;
