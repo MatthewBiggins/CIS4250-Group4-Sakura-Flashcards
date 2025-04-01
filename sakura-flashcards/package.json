@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build-nolint": "TSC_SKIP_TYPECHECK=true next build --no-lint",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --forceExit"

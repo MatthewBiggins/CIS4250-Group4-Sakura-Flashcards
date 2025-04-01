@@ -10,7 +10,7 @@ build:
     - cd sakura-flashcards
     - npm install  # Install dependencies
   script:
-    - npm run build-nolint
+    - npm run build
     - npm run test
   cache:
     paths:

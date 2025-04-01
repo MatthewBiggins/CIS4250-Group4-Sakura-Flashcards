@@ -5,15 +5,15 @@ import Flashcard from '@/components/Flashcard';
 import { genkiData } from '@/data';
 
 interface FlashcardPageProps {
-  params: {
+  params: Promise<{
     studySetId: string;
     lessonId: string;
     flashcardId: string;
-  };
+  }>;
 }
 
 export default async function FlashcardPage({ params }: FlashcardPageProps) {
-  const { studySetId, lessonId, flashcardId } = params;
+  const { studySetId, lessonId, flashcardId } = await params;
   const studySet = genkiData.filter((set) => set.slug === studySetId)[0];
   const lesson = studySet.data.filter((lesson) => lesson.slug === lessonId)[0];
   const unit = lesson.units.filter((unit) => unit.slug === flashcardId)[0];
