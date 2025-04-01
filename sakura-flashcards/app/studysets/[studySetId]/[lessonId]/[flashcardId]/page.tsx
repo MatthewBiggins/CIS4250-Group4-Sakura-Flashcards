@@ -5,24 +5,22 @@ import Flashcard from '@/components/Flashcard';
 import { genkiData } from '@/data';
 
 interface FlashcardPageProps {
-  params: Promise<{
-    studySetId: string;
-    lessonId: string;
-    flashcardId: string;
-  }>;
+  params: Promise<{ studySetId: string; lessonId: string; flashcardId: string }>;
+  searchParams?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>;
 }
 
-export default async function FlashcardPage({ params }: FlashcardPageProps) {
+export default async function FlashcardPage({ params, searchParams }: FlashcardPageProps) {
   const { studySetId, lessonId, flashcardId } = await params;
+  // searchParams can be awaited if needed: const query = await searchParams;
   const studySet = genkiData.filter((set) => set.slug === studySetId)[0];
   const lesson = studySet.data.filter((lesson) => lesson.slug === lessonId)[0];
   const unit = lesson.units.filter((unit) => unit.slug === flashcardId)[0];
 
-  // track index of set, lessons, and unit for progress tracking
   const index: number[] = [];
   index.push(genkiData.indexOf(studySet));
   index.push(studySet.data.indexOf(lesson));
   index.push(lesson.units.indexOf(unit));
+
   
   return (
     <div className="w-full rounded-lg bg-globalBackground border border-violet-900 p-4 lg:p-6">
